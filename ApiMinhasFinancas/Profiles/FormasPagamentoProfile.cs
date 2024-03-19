@@ -8,8 +8,8 @@ namespace ApiMinhasFinancas.Profiles
     {
         public FormasPagamentoProfile()
         {
-            CreateMap<UpdateFormasPagamentoDto, FormasPagamento>();
-            CreateMap<FormasPagamento, UpdateFormasPagamentoDto>();
+            CreateMap<UpdateFormasPagamentoDto, FormasPagamento>();           
+            CreateMap<FormasPagamento, ReadFormaPagamentoDto>();         
         }
     }
 }

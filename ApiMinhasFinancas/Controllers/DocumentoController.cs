@@ -22,9 +22,9 @@ namespace ApiMinhasFinancas.Controllers
         }
 
         [HttpGet]
-        public IActionResult RetornaDocumentos()
+        public IEnumerable<ReadDocumentosDto> RetornaDocumentos()        
         {
-            return Ok(_context.DocumentosDB);
+            return _mapper.Map<List<ReadDocumentosDto>>(_context.DocumentosDB.ToList());                      
         }
 
         [HttpGet("{id}")]
@@ -32,12 +32,15 @@ namespace ApiMinhasFinancas.Controllers
         {
             var documento = _context.DocumentosDB.SingleOrDefault(d => d.Id == id);
             if(documento != null)
-                return Ok(documento);
+            {
+                ReadDocumentosDto documentosDto = _mapper.Map<ReadDocumentosDto>(documento);
+                return Ok(documentosDto);
+            }                
             return NotFound();
         }
 
         [HttpGet("PorPeriodo")]
-        public async Task<ActionResult<IEnumerable<Documentos>>> ObterDocumentosPorPeriodo(   
+        public async Task<IEnumerable<ReadDocumentosDto>> ObterDocumentosPorPeriodo(   
             [FromQuery(Name = "tipo")]
             [Required] int tipo,
             [FromQuery(Name = "status")]
@@ -48,9 +51,9 @@ namespace ApiMinhasFinancas.Controllers
             [Required] DateTimeOffset dataFim)            
         {
             var documentos =  await _context.DocumentosDB
-                                     .Where(d => d.DataDocumento >= dataIni.UtcDateTime && d.DataDocumento <= dataFim.UtcDateTime && d.Fk_Tipoconta.Tipo == tipo && d.Status == status.ToString())
+                                     .Where(d => d.DataDocumento >= dataIni.UtcDateTime && d.DataDocumento <= dataFim.UtcDateTime && d.TipoConta.Tipo == tipo && d.Status == status.ToString())
                                      .ToListAsync();
-            return Ok(documentos);
+            return _mapper.Map<List<ReadDocumentosDto>>(documentos);            
         }                            
 
         [HttpGet("ValoresPorPeriodo")]
@@ -65,7 +68,7 @@ namespace ApiMinhasFinancas.Controllers
             [Required] DateTimeOffset dataFim)
         {            
             var totalValores = await _context.DocumentosDB
-                              .Where(d => d.DataDocumento >= dataIni.UtcDateTime && d.DataDocumento <= dataFim.UtcDateTime && d.Fk_Tipoconta.Tipo == tipo && d.Status == status.ToString())
+                              .Where(d => d.DataDocumento >= dataIni.UtcDateTime && d.DataDocumento <= dataFim.UtcDateTime && d.TipoConta.Tipo == tipo && d.Status == status.ToString())
                               .SumAsync(d => (double?)(d.Valor)) ?? 0;
             return Ok(totalValores);
         }
@@ -73,15 +76,15 @@ namespace ApiMinhasFinancas.Controllers
         [HttpGet("SaldoFormasPagamento")]
         public async Task<ActionResult<IEnumerable<ReadSaldoFormasPagamentoDto>>> ObterSaldoFormasPagamento()
         {
-            var saldos = await _context.DocumentosDB                    
-                .Where(d => d.DataDocumento <= DateTime.UtcNow)               
-                .GroupBy(d => new { d.Fk_FormaPgto.Id, d.Fk_FormaPgto.Nome})
+            var saldos = await _context.DocumentosDB
+                .Where(d => d.DataDocumento <= DateTime.UtcNow)
+                .GroupBy(d => new { d.FormaPagamento.Id, d.FormaPagamento.Nome })                
                 .Select(SaldoFormaPagamento => new ReadSaldoFormasPagamentoDto
-                {
-                    Id = SaldoFormaPagamento.Key.Id,
-                    Nome = SaldoFormaPagamento.Key.Nome,
-                    ValorTotal = SaldoFormaPagamento.Sum(d => d.Fk_Tipoconta.Tipo == 1 && d.Status == "E" ? d.Valor : (d.Fk_Tipoconta.Tipo == 2 && d.Status == "P" ? -d.Valor : 0))
-                }).ToListAsync();
+                 {
+                     Id = SaldoFormaPagamento.Key.Id,
+                     Nome = SaldoFormaPagamento.Key.Nome,
+                     ValorTotal = SaldoFormaPagamento.Sum(d => d.TipoConta.Tipo == 1 && d.Status == "E" ? d.Valor : (d.TipoConta.Tipo == 2 && d.Status == "P" ? -d.Valor : 0))
+                 }).ToListAsync();
 
             return Ok(saldos);
         }
@@ -90,11 +93,11 @@ namespace ApiMinhasFinancas.Controllers
         public async Task<ActionResult<double>> ObterSaldoGeral()
         {            
             var saldoEntrada = await _context.DocumentosDB
-                .Where(d => d.DataDocumento <= DateTime.UtcNow && d.Fk_Tipoconta.Tipo == 1)
+                .Where(d => d.DataDocumento <= DateTime.UtcNow && d.TipoConta.Tipo == 1)
                 .SumAsync(d => d.Valor);
 
             var saldoSaida = await _context.DocumentosDB
-                .Where(d => d.DataDocumento <= DateTime.UtcNow && d.Fk_Tipoconta.Tipo == 2 && d.Status == "P")
+                .Where(d => d.DataDocumento <= DateTime.UtcNow && d.TipoConta.Tipo == 2 && d.Status == "P")
                 .SumAsync(d => d.Valor);                     
             return Ok(saldoEntrada - saldoSaida);            
         }
@@ -107,7 +110,7 @@ namespace ApiMinhasFinancas.Controllers
             var dataAtual = DateTime.UtcNow;
           
             var saldosPorMes = await _context.DocumentosDB
-                .Where(d => d.DataDocumento >= dataInicial && d.DataDocumento <= dataAtual && d.Fk_Tipoconta.Tipo == tipo)
+                .Where(d => d.DataDocumento >= dataInicial && d.DataDocumento <= dataAtual && d.TipoConta.Tipo == tipo)
                 .GroupBy(d => new { d.DataDocumento.Year, d.DataDocumento.Month })
                 .Select(g => new ReadMesTotalDto
                 {
@@ -125,10 +128,10 @@ namespace ApiMinhasFinancas.Controllers
             var documento = _mapper.Map<Documentos>(updateDocumentosDto);
             _context.DocumentosDB.Add(documento);
             _context.SaveChanges();
-            return CreatedAtAction(nameof(RetornaDocumentoPorId), new {Id = documento.Id, documento});
+            return CreatedAtAction(nameof(RetornaDocumentoPorId), new { Id = documento.Id }, updateDocumentosDto);
         }
 
-        [HttpPut("id")]
+        [HttpPut("{id}")]
         public IActionResult EditaDocumento(int id, [FromBody] UpdateDocumentosDto updateDocumentosDto)
         {
             var documento = _context.DocumentosDB.SingleOrDefault(d => d.Id == id);
@@ -139,7 +142,7 @@ namespace ApiMinhasFinancas.Controllers
             return NoContent();
         }
 
-        [HttpDelete("id")]
+        [HttpDelete("{id}")]
         public IActionResult DeletaDocumento(int id)
         {
             var documento = _context.DocumentosDB.SingleOrDefault(d => d.Id == id);

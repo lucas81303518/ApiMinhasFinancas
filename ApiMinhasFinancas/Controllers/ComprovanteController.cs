@@ -20,6 +20,7 @@ namespace ApiMinhasFinancas.Controllers
         {
             return Ok(_context.ComprovantesDB);
         }
+
         [HttpGet("{Id}")]
         public IActionResult RetornaComprovantePorId(int id)
         {

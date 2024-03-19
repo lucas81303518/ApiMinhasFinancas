@@ -11,7 +11,6 @@ namespace ApiMinhasFinancas.Dtos.Comprovantes
         public string CaminhoArquivo { get; set; }
         [Required(ErrorMessage = "Campo Tipo do Comprovante é obrigatório!")]
         public string TipoComprovante { get; set; }
-        [ForeignKey("Id")]
-        public UpdateDocumentosDto FK_Documento { get; set; }
+        public int DocumentoId { get; set; }        
     }
 }

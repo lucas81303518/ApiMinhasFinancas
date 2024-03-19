@@ -15,5 +15,6 @@ namespace ApiMinhasFinancas.Models
         public string NomeConta { get; set; }
         [Required(ErrorMessage = "Campo Tipo da Conta é obrigatório!")]
         public int Tipo { get; set; }
+        public virtual Documentos Documento { get; set; }
     }
 }

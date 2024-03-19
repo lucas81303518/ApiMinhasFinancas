@@ -9,7 +9,7 @@ namespace ApiMinhasFinancas.Profiles
         public DocumentosProfile()
         {
             CreateMap<UpdateDocumentosDto, Documentos>();
-            CreateMap<Documentos, UpdateDocumentosDto>();
+            CreateMap<Documentos, ReadDocumentosDto>();                        
         }
     }
 }

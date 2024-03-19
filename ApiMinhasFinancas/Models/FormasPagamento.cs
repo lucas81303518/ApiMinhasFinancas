@@ -13,5 +13,6 @@ namespace ApiMinhasFinancas.Models
         public string Nome { get; set; }
         [Required(ErrorMessage = "Campo Valor é obrigatório!")]        
         public double Valor { get; set; }
+        public virtual Documentos Documento { get; set; }
     }
 }

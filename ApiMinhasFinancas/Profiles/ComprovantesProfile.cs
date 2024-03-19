@@ -8,8 +8,7 @@ namespace ApiMinhasFinancas.Profiles
     {
         public ComprovantesProfile()
         {
-            CreateMap<UpdateComprovantesDto, Comprovantes>();
-            CreateMap<Comprovantes, UpdateComprovantesDto>();
+            CreateMap<UpdateComprovantesDto, Comprovantes>();         
         }
     }
 }

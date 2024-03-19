@@ -8,8 +8,8 @@ namespace ApiMinhasFinancas.Profiles
     {
         public TipoContasProfile()
         {
-            CreateMap<UpdateTipoContasDto, TipoContas>();
-            CreateMap<TipoContas, UpdateTipoContasDto>();
+            CreateMap<UpdateTipoContasDto, TipoContas>();            
+            CreateMap<TipoContas, ReadTipoContaDto>();       
         }
     }
 }

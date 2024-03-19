@@ -17,11 +17,13 @@ namespace ApiMinhasFinancas.Controllers
             _context = context;
             _mapper = mapper;
         }
+
         [HttpGet]
-        public IActionResult RetornaTipoContas()
+        public IEnumerable<ReadTipoContaDto> RetornaTipoContas()
         {
-            return Ok(_context.TipoContasDB);
+            return _mapper.Map<List<ReadTipoContaDto>>(_context.TipoContasDB.ToList());
         }
+
         [HttpGet("{id}")]
         public IActionResult RetornaTipoContasPorId(int id)
         {

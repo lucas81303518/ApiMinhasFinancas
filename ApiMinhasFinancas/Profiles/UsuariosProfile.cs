@@ -8,8 +8,8 @@ namespace ApiMinhasFinancas.Profiles
     {
         public UsuariosProfile()
         {
-            CreateMap<UpdateUsuarioDto, Usuarios>();
-            CreateMap<Usuarios, UpdateUsuarioDto>();
+            CreateMap<UpdateUsuarioDto, Usuarios>();     
+            CreateMap<Usuarios, ReadUsuariosDto>();
         }
     }
 }

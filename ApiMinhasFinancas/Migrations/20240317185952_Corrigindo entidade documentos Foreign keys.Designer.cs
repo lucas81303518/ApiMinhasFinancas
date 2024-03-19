@@ -3,6 +3,7 @@ using System;
 using ApiMinhasFinancas.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ApiMinhasFinancas.Migrations
 {
     [DbContext(typeof(MinhasFinancasContext))]
-    partial class MinhasFinancasContextModelSnapshot : ModelSnapshot
+    [Migration("20240317185952_Corrigindo entidade documentos Foreign keys")]
+    partial class CorrigindoentidadedocumentosForeignkeys
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,14 +30,9 @@ namespace ApiMinhasFinancas.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
                     b.Property<string>("CaminhoArquivo")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("DocumentoId")
-                        .HasColumnType("integer");
 
                     b.Property<string>("TipoComprovante")
                         .IsRequired()
@@ -46,8 +43,6 @@ namespace ApiMinhasFinancas.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DocumentoId");
 
                     b.ToTable("ComprovantesDB");
                 });
@@ -95,14 +90,11 @@ namespace ApiMinhasFinancas.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FormaPagamentoId")
-                        .IsUnique();
+                    b.HasIndex("FormaPagamentoId");
 
-                    b.HasIndex("TipoContaId")
-                        .IsUnique();
+                    b.HasIndex("TipoContaId");
 
-                    b.HasIndex("UsuarioId")
-                        .IsUnique();
+                    b.HasIndex("UsuarioId");
 
                     b.ToTable("DocumentosDB");
                 });
@@ -229,32 +221,32 @@ namespace ApiMinhasFinancas.Migrations
 
             modelBuilder.Entity("ApiMinhasFinancas.Models.Comprovantes", b =>
                 {
-                    b.HasOne("ApiMinhasFinancas.Models.Documentos", "Documento")
+                    b.HasOne("ApiMinhasFinancas.Models.Documentos", "FK_Documento")
                         .WithMany()
-                        .HasForeignKey("DocumentoId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Documento");
+                    b.Navigation("FK_Documento");
                 });
 
             modelBuilder.Entity("ApiMinhasFinancas.Models.Documentos", b =>
                 {
                     b.HasOne("ApiMinhasFinancas.Models.FormasPagamento", "FormaPagamento")
-                        .WithOne("Documento")
-                        .HasForeignKey("ApiMinhasFinancas.Models.Documentos", "FormaPagamentoId")
+                        .WithMany()
+                        .HasForeignKey("FormaPagamentoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ApiMinhasFinancas.Models.TipoContas", "TipoConta")
-                        .WithOne("Documento")
-                        .HasForeignKey("ApiMinhasFinancas.Models.Documentos", "TipoContaId")
+                        .WithMany()
+                        .HasForeignKey("TipoContaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ApiMinhasFinancas.Models.Usuarios", "Usuario")
-                        .WithOne("Documento")
-                        .HasForeignKey("ApiMinhasFinancas.Models.Documentos", "UsuarioId")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -263,24 +255,6 @@ namespace ApiMinhasFinancas.Migrations
                     b.Navigation("TipoConta");
 
                     b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("ApiMinhasFinancas.Models.FormasPagamento", b =>
-                {
-                    b.Navigation("Documento")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ApiMinhasFinancas.Models.TipoContas", b =>
-                {
-                    b.Navigation("Documento")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ApiMinhasFinancas.Models.Usuarios", b =>
-                {
-                    b.Navigation("Documento")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

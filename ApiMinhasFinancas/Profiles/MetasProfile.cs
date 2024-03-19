@@ -1,4 +1,5 @@
-﻿using ApiMinhasFinancas.Dtos.Metas;
+﻿using ApiMinhasFinancas.Data.Dtos.Metas;
+using ApiMinhasFinancas.Dtos.Metas;
 using ApiMinhasFinancas.Models;
 using AutoMapper;
 
@@ -9,7 +10,7 @@ namespace ApiMinhasFinancas.Profiles
         public MetasProfile()
         {
             CreateMap<UpdateMetasDto, Metas>();
-            CreateMap<Metas, UpdateMetasDto>();
+            CreateMap<Metas, ReadMetasDto>();
         }
     }
 }

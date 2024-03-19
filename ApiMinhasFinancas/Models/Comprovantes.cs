@@ -15,7 +15,8 @@ namespace ApiMinhasFinancas.Models
         public string CaminhoArquivo { get; set; }
         [Required(ErrorMessage = "Campo Tipo do Comprovante é obrigatório!")]        
         public string TipoComprovante { get; set; }
-        [ForeignKey("Id")]
-        public Documentos FK_Documento { get; set; }
+        [Required(ErrorMessage = "Documento é obrigatório!")]
+        public int DocumentoId { get; set; }
+        public virtual Documentos Documento { get; set; }
     }
 }
