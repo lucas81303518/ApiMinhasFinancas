@@ -1,6 +1,6 @@
 ﻿using ApiMinhasFinancas.Data;
+using ApiMinhasFinancas.Data.Dtos.Usuarios;
 using ApiMinhasFinancas.Dtos.Usuarios;
-using ApiMinhasFinancas.Login;
 using ApiMinhasFinancas.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +10,7 @@ namespace ApiMinhasFinancas.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class UsuarioController: ControllerBase
     {
         private readonly MinhasFinancasContext _context;
@@ -39,10 +40,8 @@ namespace ApiMinhasFinancas.Controllers
         [HttpPost("login")]
         [AllowAnonymous]
         public ActionResult<string> Login([FromBody] CredenciaisLogin credenciais)
-        {           
-            string senhaHashed = Utils.Utils.CalcularHashSHA256(credenciais.Senha);
-
-            var usuario = _context.UsuariosDB.FirstOrDefault(x => x.Email == credenciais.Email && x.Senha == senhaHashed);
+        {                      
+            var usuario = _context.UsuariosDB.FirstOrDefault(x => x.Email == credenciais.Email && x.Senha == credenciais.Senha);
 
             if (usuario == null)
             {

@@ -6,7 +6,7 @@ namespace ApiMinhasFinancas.Dtos.Documentos
 {
     public class ReadSaldoFormasPagamentoDto
     {       
-        public double ValorTotal { get; set; }            
+        public double Valor { get; set; }            
         public int Id { get; set; }
         public string Nome { get; set; }
     }

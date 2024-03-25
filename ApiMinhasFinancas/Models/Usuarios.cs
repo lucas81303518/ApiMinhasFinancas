@@ -16,7 +16,6 @@ namespace ApiMinhasFinancas.Models
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Campo Senha é obrigatório!")]        
-        public string Senha { get; set; }
-        public virtual Documentos Documento { get; set; }
+        public string Senha { get; set; }  
     }
 }

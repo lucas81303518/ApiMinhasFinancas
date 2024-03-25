@@ -7,7 +7,12 @@ namespace ApiMinhasFinancas.Dtos.Usuarios
     {
         public int Id { get; set; }        
         public string Nome { get; set; }        
-        public string Email { get; set; }        
-        public string Senha { get; set; }      
+        public string Email { get; set; }
+        private string _senha;
+        public string Senha
+        {
+            get { return _senha; }
+            set { _senha = Utils.Utils.CalcularHashSHA256(value); }
+        }
     }
 }

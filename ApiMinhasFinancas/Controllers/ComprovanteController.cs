@@ -1,5 +1,4 @@
 ﻿using ApiMinhasFinancas.Data;
-using ApiMinhasFinancas.Login;
 using ApiMinhasFinancas.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,10 +14,10 @@ namespace ApiMinhasFinancas.Controllers
         {
             _context = context;
         }       
-        [HttpGet]
-        public IActionResult RetornaComprovantes()
+        [HttpGet("documentos/{idDocumento}")]
+        public IActionResult RetornaComprovantes(int idDocumento)
         {
-            return Ok(_context.ComprovantesDB);
+            return Ok(_context.ComprovantesDB.Where(d => d.DocumentoId == idDocumento).ToList());
         }
 
         [HttpGet("{Id}")]

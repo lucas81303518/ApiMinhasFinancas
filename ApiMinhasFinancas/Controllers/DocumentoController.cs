@@ -2,15 +2,17 @@
 using ApiMinhasFinancas.Dtos.Documentos;
 using ApiMinhasFinancas.Models;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using System.Drawing;
+using System.Globalization;
 
 namespace ApiMinhasFinancas.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class DocumentoController: ControllerBase
     {
         private readonly MinhasFinancasContext _context;
@@ -66,10 +68,19 @@ namespace ApiMinhasFinancas.Controllers
             [Required] DateTimeOffset dataIni,
             [FromQuery(Name = "dataFim")]
             [Required] DateTimeOffset dataFim)
-        {            
+        {
             var totalValores = await _context.DocumentosDB
-                              .Where(d => d.DataDocumento >= dataIni.UtcDateTime && d.DataDocumento <= dataFim.UtcDateTime && d.TipoConta.Tipo == tipo && d.Status == status.ToString())
-                              .SumAsync(d => (double?)(d.Valor)) ?? 0;
+                              .Where(d => d.DataDocumento >= dataIni.UtcDateTime)
+                              .Where(d => d.DataDocumento <= dataFim.UtcDateTime)
+                              .Where(d => d.TipoConta.Tipo == tipo)
+                              .Where(d => d.Status == status.ToString())
+                              .Where(d => d.Valor > 0)
+                              .OrderBy(d => d.Valor)
+                              .GroupBy(d=> d.TipoConta.Id)
+                              .Select( Valores => new
+                              {
+                                  Valor = Valores.Sum(d=> d.Valor)
+                              }).ToListAsync();                             
             return Ok(totalValores);
         }
 
@@ -83,9 +94,18 @@ namespace ApiMinhasFinancas.Controllers
                  {
                      Id = SaldoFormaPagamento.Key.Id,
                      Nome = SaldoFormaPagamento.Key.Nome,
-                     ValorTotal = SaldoFormaPagamento.Sum(d => d.TipoConta.Tipo == 1 && d.Status == "E" ? d.Valor : (d.TipoConta.Tipo == 2 && d.Status == "P" ? -d.Valor : 0))
+                     Valor = SaldoFormaPagamento.Sum(d => d.TipoConta.Tipo == 1 && d.Status == "E" ? d.Valor : (d.TipoConta.Tipo == 2 && d.Status == "P" ? -d.Valor : 0))
                  }).ToListAsync();
 
+            return Ok(saldos);
+        }
+        [HttpGet("SaldoFormasPagamento/{id}")]
+        public async Task<ActionResult<IEnumerable<ReadSaldoFormasPagamentoDto>>> ObterSaldoFormaPagamentoPorId(int id)
+        {
+            var saldos = await _context.DocumentosDB
+                .Where(d => d.DataDocumento <= DateTime.UtcNow)
+                .Where(d => d.FormaPagamentoId == id)
+                .SumAsync(d => d.TipoConta.Tipo == 1 && d.Status == "E" ? d.Valor : (d.TipoConta.Tipo == 2 && d.Status == "P" ? -d.Valor : 0));
             return Ok(saldos);
         }
 
@@ -114,7 +134,8 @@ namespace ApiMinhasFinancas.Controllers
                 .GroupBy(d => new { d.DataDocumento.Year, d.DataDocumento.Month })
                 .Select(g => new ReadMesTotalDto
                 {
-                    Mes = new DateTime(g.Key.Year, g.Key.Month, 1),
+                    NumeroMes = g.Key.Month,
+                    Mes = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(g.Key.Month),
                     Total = g.Sum(d => d.Valor)
                 })
                 .ToListAsync();
