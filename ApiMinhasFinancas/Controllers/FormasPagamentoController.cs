@@ -2,6 +2,7 @@
 using ApiMinhasFinancas.Dtos.FormasPagamento;
 using ApiMinhasFinancas.Models;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +10,7 @@ namespace ApiMinhasFinancas.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class FormasPagamentoController: ControllerBase
     {
         private readonly MinhasFinancasContext _context;

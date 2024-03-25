@@ -12,7 +12,7 @@ namespace ApiMinhasFinancas.Models
         public int Id { get; set; }
         [Required(ErrorMessage = "Campo Numero do Documento é obrigatório!")]
         public string NumeroDocumento { get; set; }
-        [Required(ErrorMessage = "Campo Numero do Descrição é obrigatório!")]
+        [Required(ErrorMessage = "Campo Numero do Documento é obrigatório!")]
         public string Descricao { get; set; }
         [Required(ErrorMessage = "Campo Valor do Documento é obrigatório!")]
         public double Valor { get; set; }

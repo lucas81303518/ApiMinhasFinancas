@@ -4,12 +4,14 @@ using ApiMinhasFinancas.Dtos.Documentos;
 using ApiMinhasFinancas.Dtos.Metas;
 using ApiMinhasFinancas.Models;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApiMinhasFinancas.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class MetaController: ControllerBase
     {
         private readonly MinhasFinancasContext _context;

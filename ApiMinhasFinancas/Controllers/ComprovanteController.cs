@@ -7,6 +7,7 @@ namespace ApiMinhasFinancas.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class ComprovanteController: ControllerBase
     {
         private readonly MinhasFinancasContext _context;
