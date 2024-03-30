@@ -22,48 +22,48 @@ namespace ApiMinhasFinancas.Controllers
         }
 
         [HttpGet]
-        public IActionResult RetornaFormasPagamento()
+        public async Task<IActionResult> RetornaFormasPagamento()
         {
-            return Ok(_context.FormasPgtoDB);
+            return Ok(_mapper.Map<IEnumerable<ReadFormaPagamentoDto>>(await _context.FormasPgtoDB.ToListAsync()));
         }
 
         [HttpGet("{id}")]
-        public IActionResult RetornaFormasPagamentoPorId(int id)
+        public async Task<IActionResult> RetornaFormasPagamentoPorId(int id)
         {
-            var formasPgto = _context.FormasPgtoDB.SingleOrDefault(f => f.Id == id);
+            var formasPgto = _mapper.Map<ReadFormaPagamentoDto>(await _context.FormasPgtoDB.SingleOrDefaultAsync(f => f.Id == id));
             if(formasPgto != null)
                 return Ok(formasPgto);
             return NotFound();
         }       
 
         [HttpPost]
-        public IActionResult AdicionaFormasPagamento([FromBody] UpdateFormasPagamentoDto formasPagamentoDto)
+        public async Task<IActionResult> AdicionaFormasPagamento([FromBody] UpdateFormasPagamentoDto formasPagamentoDto)
         {
             FormasPagamento formasPagamento = _mapper.Map<FormasPagamento>(formasPagamentoDto);
             _context.FormasPgtoDB.Add(formasPagamento);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(RetornaFormasPagamentoPorId), new { Id = formasPagamento.Id }, formasPagamento);
         }
 
         [HttpPut("{id}")]
-        public IActionResult EditaFormasPagamento(int id, [FromBody] UpdateFormasPagamentoDto formasPagamentoDto)
+        public async Task<IActionResult> EditaFormasPagamento(int id, [FromBody] UpdateFormasPagamentoDto formasPagamentoDto)
         {
-            var formasPgtoAntigo = _context.FormasPgtoDB.SingleOrDefault(f => f.Id == id);
+            var formasPgtoAntigo = await _context.FormasPgtoDB.SingleOrDefaultAsync(f => f.Id == id);
             if (formasPgtoAntigo == null)
                 return NotFound();
             _mapper.Map(formasPgtoAntigo, formasPagamentoDto);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeletaFormaPagamento(int id)
+        public async Task<IActionResult> DeletaFormaPagamento(int id)
         {
-            var formaPagamento = _context.FormasPgtoDB.SingleOrDefault(f => f.Id == id);
+            var formaPagamento = await _context.FormasPgtoDB.SingleOrDefaultAsync(f => f.Id == id);
             if (formaPagamento == null)
                 return NotFound();
             _context.FormasPgtoDB.Remove(formaPagamento);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
     }

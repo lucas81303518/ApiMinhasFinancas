@@ -6,6 +6,7 @@ using ApiMinhasFinancas.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApiMinhasFinancas.Controllers
 {
@@ -23,15 +24,15 @@ namespace ApiMinhasFinancas.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<ReadMetasDto> ObterMetas()
+        public async Task<IEnumerable<ReadMetasDto>> ObterMetas()
         {
-            return _mapper.Map<List<ReadMetasDto>>(_context.MetasDB.ToList());          
+            return _mapper.Map<List<ReadMetasDto>>(await _context.MetasDB.ToListAsync());          
         }
 
         [HttpGet("{id}")]
-        public IActionResult ObterMetaPorId(int id)
+        public async Task<IActionResult> ObterMetaPorId(int id)
         {
-            var meta = _context.MetasDB.SingleOrDefault(m => m.Id == id);
+            var meta = await _context.MetasDB.SingleOrDefaultAsync(m => m.Id == id);
             if (meta != null)
             {
                 ReadMetasDto readMeta = _mapper.Map<ReadMetasDto>(meta);
@@ -41,33 +42,33 @@ namespace ApiMinhasFinancas.Controllers
         }
 
         [HttpPost]
-        public IActionResult AdicionaMeta([FromBody] UpdateMetasDto updateMetasDto)
+        public async Task<IActionResult> AdicionaMeta([FromBody] UpdateMetasDto updateMetasDto)
         {
             var meta = _mapper.Map<Metas>(updateMetasDto);
             _context.MetasDB.Add(meta);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(ObterMetaPorId), new { id = meta.Id, meta });
         }
 
         [HttpPut("{id}")]
-        public IActionResult EditaMeta(int id, [FromBody] UpdateMetasDto updateMetasDto)
+        public async Task<IActionResult> EditaMeta(int id, [FromBody] UpdateMetasDto updateMetasDto)
         {
-            var meta = _context.MetasDB.SingleOrDefault(m => m.Id == id);
+            var meta = await _context.MetasDB.SingleOrDefaultAsync(m => m.Id == id);
             if (meta == null)
                 return NotFound();
             _mapper.Map(updateMetasDto, meta);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeletaMeta(int id)
+        public async Task<IActionResult> DeletaMeta(int id)
         {
-            var meta = _context.MetasDB.SingleOrDefault(m => m.Id == id);
+            var meta = await _context.MetasDB.SingleOrDefaultAsync(m => m.Id == id);
             if (meta == null)
                 return NotFound();
             _context.MetasDB.Remove(meta);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
     }

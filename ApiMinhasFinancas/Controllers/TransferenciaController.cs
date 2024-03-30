@@ -5,6 +5,7 @@ using ApiMinhasFinancas.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApiMinhasFinancas.Controllers
 {
@@ -22,15 +23,15 @@ namespace ApiMinhasFinancas.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<ReadTransferenciasDto> ObterTransferencias()
+        public async Task<IEnumerable<ReadTransferenciasDto>> ObterTransferencias()
         {
-            return _mapper.Map<List<ReadTransferenciasDto>>(_context.TransferenciasDB.ToList());
+            return _mapper.Map<List<ReadTransferenciasDto>>(await _context.TransferenciasDB.ToListAsync());
         }
 
         [HttpGet("{id}")]
-        public IActionResult ObterTransferenciaPorId(int id)
+        public async Task<IActionResult> ObterTransferenciaPorId(int id)
         {
-            var transferencias = _context.TransferenciasDB.SingleOrDefault(t=> t.Id == id);
+            var transferencias = await _context.TransferenciasDB.SingleOrDefaultAsync(t=> t.Id == id);
             if(transferencias != null)
             {
                 ReadTransferenciasDto readTransferenciasDto = _mapper.Map<ReadTransferenciasDto>(transferencias);
@@ -40,32 +41,32 @@ namespace ApiMinhasFinancas.Controllers
         }
 
         [HttpPost]
-        public IActionResult AdicionaTransferencia([FromBody] UpdateTransferenciasDto updateTransferenciasDto)
+        public async Task<IActionResult> AdicionaTransferencia([FromBody] UpdateTransferenciasDto updateTransferenciasDto)
         {
             Transferencias transferencias = _mapper.Map<Transferencias>(updateTransferenciasDto);
             _context.TransferenciasDB.Add(transferencias);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(ObterTransferenciaPorId), new { Id = transferencias.Id }, updateTransferenciasDto);
         }
 
         [HttpPut("{id}")]
-        public IActionResult EditaTransferencia(int id, [FromBody] UpdateTransferenciasDto updateTransferenciasDto)
+        public async Task<IActionResult> EditaTransferencia(int id, [FromBody] UpdateTransferenciasDto updateTransferenciasDto)
         {
-            Transferencias transferencias = _context.TransferenciasDB.SingleOrDefault(t => t.Id == id);
+            var transferencias = await _context.TransferenciasDB.SingleOrDefaultAsync(t => t.Id == id);
             if (transferencias == null)
                 return NotFound();
             _mapper.Map(updateTransferenciasDto, transferencias);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
         [HttpDelete("{id}")]
-        public IActionResult DeletaTransferencia(int id)
+        public async Task<IActionResult> DeletaTransferencia(int id)
         {
-            Transferencias transferencias = _context.TransferenciasDB.SingleOrDefault(t => t.Id == id);
+            var transferencias = await _context.TransferenciasDB.SingleOrDefaultAsync(t => t.Id == id);
             if (transferencias == null)
                 return NotFound();
             _context.TransferenciasDB.Remove(transferencias);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
     }

@@ -1,4 +1,5 @@
-﻿using ApiMinhasFinancas.Dtos.Comprovantes;
+﻿using ApiMinhasFinancas.Data.Dtos.Comprovantes;
+using ApiMinhasFinancas.Dtos.Comprovantes;
 using ApiMinhasFinancas.Models;
 using AutoMapper;
 
@@ -8,7 +9,8 @@ namespace ApiMinhasFinancas.Profiles
     {
         public ComprovantesProfile()
         {
-            CreateMap<UpdateComprovantesDto, Comprovantes>();         
+            CreateMap<UpdateComprovantesDto, Comprovantes>();
+            CreateMap<Comprovantes, ReadComprovanteDto>();
         }
     }
 }

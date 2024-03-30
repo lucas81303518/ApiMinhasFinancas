@@ -1,4 +1,5 @@
 ﻿using ApiMinhasFinancas.Data;
+using ApiMinhasFinancas.Data.Dtos.Documentos;
 using ApiMinhasFinancas.Dtos.Documentos;
 using ApiMinhasFinancas.Models;
 using AutoMapper;
@@ -24,15 +25,15 @@ namespace ApiMinhasFinancas.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<ReadDocumentosDto> RetornaDocumentos()        
+        public async Task<IEnumerable<ReadDocumentosDto>> RetornaDocumentos()        
         {
-            return _mapper.Map<List<ReadDocumentosDto>>(_context.DocumentosDB.ToList());                      
+            return _mapper.Map<List<ReadDocumentosDto>>(await _context.DocumentosDB.ToListAsync());                      
         }
 
         [HttpGet("{id}")]
-        public IActionResult RetornaDocumentoPorId(int id)
+        public async Task<IActionResult> RetornaDocumentoPorId(int id)
         {
-            var documento = _context.DocumentosDB.SingleOrDefault(d => d.Id == id);
+            var documento = await _context.DocumentosDB.SingleOrDefaultAsync(d => d.Id == id);
             if(documento != null)
             {
                 ReadDocumentosDto documentosDto = _mapper.Map<ReadDocumentosDto>(documento);
@@ -59,7 +60,7 @@ namespace ApiMinhasFinancas.Controllers
         }                            
 
         [HttpGet("ValoresPorPeriodo")]
-        public async Task<ActionResult<IEnumerable<double>>> ObterValoresPorPeriodo(
+        public async Task<ActionResult<IEnumerable<ReadTipoContaTotalDocs>>> ObterValoresPorPeriodo(
             [FromQuery(Name = "tipo")]   
             [Required] int tipo,
             [FromQuery(Name = "status")] 
@@ -76,10 +77,13 @@ namespace ApiMinhasFinancas.Controllers
                               .Where(d => d.Status == status.ToString())
                               .Where(d => d.Valor > 0)
                               .OrderBy(d => d.Valor)
-                              .GroupBy(d=> d.TipoConta.Id)
-                              .Select( Valores => new
+                              .GroupBy(d => new { d.TipoConta.Id, d.TipoConta.NomeConta, d.TipoConta.Tipo })
+                              .Select( Valores => new ReadTipoContaTotalDocs
                               {
-                                  Valor = Valores.Sum(d=> d.Valor)
+                                  Id = Valores.Key.Id,
+                                  NomeConta = Valores.Key.NomeConta,
+                                  Tipo = Valores.Key.Tipo,
+                                  ValorTotal = Valores.Sum(d=> d.Valor)
                               }).ToListAsync();                             
             return Ok(totalValores);
         }
@@ -144,33 +148,33 @@ namespace ApiMinhasFinancas.Controllers
         }
 
         [HttpPost]
-        public IActionResult AdicionaDocumento([FromBody] UpdateDocumentosDto updateDocumentosDto)
+        public async Task<IActionResult> AdicionaDocumento([FromBody] UpdateDocumentosDto updateDocumentosDto)
         {
             var documento = _mapper.Map<Documentos>(updateDocumentosDto);
             _context.DocumentosDB.Add(documento);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(RetornaDocumentoPorId), new { Id = documento.Id }, updateDocumentosDto);
         }
 
         [HttpPut("{id}")]
-        public IActionResult EditaDocumento(int id, [FromBody] UpdateDocumentosDto updateDocumentosDto)
+        public async Task<IActionResult> EditaDocumento(int id, [FromBody] UpdateDocumentosDto updateDocumentosDto)
         {
-            var documento = _context.DocumentosDB.SingleOrDefault(d => d.Id == id);
+            var documento = await _context.DocumentosDB.SingleOrDefaultAsync(d => d.Id == id);
             if (documento == null)
                 return NotFound();
             _mapper.Map(updateDocumentosDto, documento);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeletaDocumento(int id)
+        public async Task<IActionResult> DeletaDocumento(int id)
         {
-            var documento = _context.DocumentosDB.SingleOrDefault(d => d.Id == id);
+            var documento = await _context.DocumentosDB.SingleOrDefaultAsync(d => d.Id == id);
             if (documento == null)
                 return NotFound();
             _context.DocumentosDB.Remove(documento);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
     }

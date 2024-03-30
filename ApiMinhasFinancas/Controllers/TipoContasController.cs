@@ -4,6 +4,7 @@ using ApiMinhasFinancas.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApiMinhasFinancas.Controllers
 {
@@ -21,48 +22,48 @@ namespace ApiMinhasFinancas.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<ReadTipoContaDto> RetornaTipoContas()
+        public async Task<IEnumerable<ReadTipoContaDto>> RetornaTipoContas()
         {
-            return _mapper.Map<List<ReadTipoContaDto>>(_context.TipoContasDB.ToList());
+            return _mapper.Map<List<ReadTipoContaDto>>(await _context.TipoContasDB.ToListAsync());
         }
 
         [HttpGet("{id}")]
-        public IActionResult RetornaTipoContasPorId(int id)
+        public async Task<IActionResult> RetornaTipoContasPorId(int id)
         {
-            var tipoConta = _context.TipoContasDB.SingleOrDefault(t => t.Id == id);
+            var tipoConta = await _context.TipoContasDB.SingleOrDefaultAsync(t => t.Id == id);
             if(tipoConta != null)
                 return Ok(tipoConta);
             return NotFound();
         }
 
         [HttpPost]
-        public IActionResult AdicionaTipoConta([FromBody] UpdateTipoContasDto updateTipoContasDto)
+        public async Task<IActionResult> AdicionaTipoConta([FromBody] UpdateTipoContasDto updateTipoContasDto)
         {
             TipoContas tipoContas = _mapper.Map<TipoContas>(updateTipoContasDto);
             _context.TipoContasDB.Add(tipoContas);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(RetornaTipoContasPorId), new { Id = tipoContas.Id }, tipoContas);
         }
 
         [HttpPut("{id}")]
-        public IActionResult EditaTipoConta(int id, [FromBody] UpdateTipoContasDto updateTipoContasDto)
+        public async Task<IActionResult> EditaTipoConta(int id, [FromBody] UpdateTipoContasDto updateTipoContasDto)
         {
-            TipoContas tipoContas = _context.TipoContasDB.SingleOrDefault(t => t.Id == id);
+            var tipoContas = await _context.TipoContasDB.SingleOrDefaultAsync(t => t.Id == id);
             if (tipoContas == null)
                 return NotFound();
             _mapper.Map(updateTipoContasDto, tipoContas);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeletaTipoConta(int id)
+        public async Task<IActionResult> DeletaTipoConta(int id)
         {
-            var tipoContas = _context.TipoContasDB.SingleOrDefault(t=> t.Id == id);
+            var tipoContas = await _context.TipoContasDB.SingleOrDefaultAsync(t=> t.Id == id);
             if (tipoContas == null)
                 return NotFound();
             _context.TipoContasDB.Remove(tipoContas);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 

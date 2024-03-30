@@ -5,6 +5,7 @@ using ApiMinhasFinancas.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApiMinhasFinancas.Controllers
 {
@@ -23,15 +24,15 @@ namespace ApiMinhasFinancas.Controllers
         }
 
         [HttpGet]
-        public IActionResult RetornaUsuarios()
+        public async Task<IActionResult> RetornaUsuarios()
         {
-            return Ok(_context.UsuariosDB);
+            return Ok(await _context.UsuariosDB.ToListAsync());
         }
 
         [HttpGet("{id}")]
-        public IActionResult RetornaUsuarioPorId(int id)
+        public async Task<IActionResult> RetornaUsuarioPorId(int id)
         {
-            var usuario = _context.UsuariosDB.FirstOrDefault(u => u.Id == id);
+            var usuario = await _context.UsuariosDB.FirstOrDefaultAsync(u => u.Id == id);
             if(usuario != null)
                 return Ok(usuario);
             return NotFound();
@@ -39,9 +40,9 @@ namespace ApiMinhasFinancas.Controllers
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public ActionResult<string> Login([FromBody] CredenciaisLogin credenciais)
+        public async Task<ActionResult<string>> Login([FromBody] CredenciaisLogin credenciais)
         {                      
-            var usuario = _context.UsuariosDB.FirstOrDefault(x => x.Email == credenciais.Email && x.Senha == credenciais.Senha);
+            var usuario = await _context.UsuariosDB.FirstOrDefaultAsync(x => x.Email == credenciais.Email && x.Senha == credenciais.Senha);
 
             if (usuario == null)
             {
@@ -52,47 +53,40 @@ namespace ApiMinhasFinancas.Controllers
         }
 
         [HttpPost]
-        public IActionResult AdicionaUsuario([FromBody] UpdateUsuarioDto usuarioDto)
+        public async Task<IActionResult> AdicionaUsuario([FromBody] UpdateUsuarioDto usuarioDto)
         {
             Usuarios usuario = _mapper.Map<Usuarios>(usuarioDto);
-            if (_context.UsuariosDB.Any(u => u.Email == usuario.Email))
+            if (await _context.UsuariosDB.AnyAsync(u => u.Email == usuario.Email))
                 return BadRequest("E-mail já cadastrado. Escolha um e-mail diferente.");
           
             _context.UsuariosDB.Add(usuario);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(RetornaUsuarioPorId), new { Id = usuario.Id }, usuario);
         }
 
         [HttpPut("{id}")]
-        public IActionResult EditarUsuario(int id, [FromBody] UpdateUsuarioDto usuarioDto)
+        public async Task<IActionResult> EditarUsuario(int id, [FromBody] UpdateUsuarioDto usuarioDto)
         {          
-            var usuario = _context.UsuariosDB.SingleOrDefault(u => u.Id == id);
+            var usuario = await _context.UsuariosDB.SingleOrDefaultAsync(u => u.Id == id);
             if (usuario == null)            
                 return NotFound();            
             if (usuario.Email != usuarioDto.Email && _context.UsuariosDB.Any(u => u.Email == usuarioDto.Email))            
-                return BadRequest("E-mail já cadastrado. Escolha um e-mail diferente.");           
-            try
-            {                
-                _mapper.Map(usuarioDto, usuario);
-                _context.SaveChanges();
-                return NoContent();
-            }
-            catch (Exception ex)
-            {                          
-                return StatusCode(500, "Ocorreu um erro ao salvar os dados. Tente novamente mais tarde.");
-            }
+                return BadRequest("E-mail já cadastrado. Escolha um e-mail diferente.");                                     
+            _mapper.Map(usuarioDto, usuario);
+            await _context.SaveChangesAsync();
+            return NoContent();                       
         }
 
         [HttpDelete("{id}")]
-        public IActionResult RemoverUsuario(int id)
+        public async Task<IActionResult> RemoverUsuario(int id)
         {
-            var usuario = _context.UsuariosDB.FirstOrDefault(u => u.Id == id);
+            var usuario = await _context.UsuariosDB.FirstOrDefaultAsync(u => u.Id == id);
             if(usuario == null)
             {
                 return NotFound();
             }
             _context.UsuariosDB.Remove(usuario);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
     }

@@ -1,7 +1,11 @@
 ﻿using ApiMinhasFinancas.Data;
+using ApiMinhasFinancas.Data.Dtos.Comprovantes;
+using ApiMinhasFinancas.Dtos.Comprovantes;
 using ApiMinhasFinancas.Models;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApiMinhasFinancas.Controllers
 {
@@ -11,53 +15,59 @@ namespace ApiMinhasFinancas.Controllers
     public class ComprovanteController: ControllerBase
     {
         private readonly MinhasFinancasContext _context;
-        public ComprovanteController(MinhasFinancasContext context)
+        private readonly IMapper _mapper;
+        public ComprovanteController(MinhasFinancasContext context, IMapper mapper)
         {
             _context = context;
-        }       
+            _mapper = mapper;
+        }
         [HttpGet("documentos/{idDocumento}")]
-        public IActionResult RetornaComprovantes(int idDocumento)
+        public async Task<IEnumerable<ReadComprovanteDto>> RetornaComprovantes(int idDocumento)
         {
-            return Ok(_context.ComprovantesDB.Where(d => d.DocumentoId == idDocumento).ToList());
+            var comprovantes = await _context.ComprovantesDB.Where(d => d.DocumentoId == idDocumento).ToListAsync();
+            return _mapper.Map<IEnumerable<ReadComprovanteDto>>(comprovantes);
         }
 
         [HttpGet("{Id}")]
-        public IActionResult RetornaComprovantePorId(int id)
+        public async Task<IActionResult> RetornaComprovantePorId(int id)
         {
-            var comprovante = _context.ComprovantesDB.SingleOrDefault(c => c.Id == id);
-            if(comprovante != null)                
-                return Ok(_context.ComprovantesDB);
+            var comprovante = await _context.ComprovantesDB.SingleOrDefaultAsync(c => c.Id == id);
+            if(comprovante != null)
+            {
+                ReadComprovanteDto readComprovanteDto = _mapper.Map<ReadComprovanteDto>(comprovante);
+                return Ok(readComprovanteDto);
+            }                              
             return NotFound();
         }
 
         [HttpPost]
-        public IActionResult AdicionaComprovante([FromBody] Comprovantes comprovante)
+        public async Task<IActionResult> AdicionaComprovante([FromBody] UpdateComprovantesDto comprovanteDto)
         {
+            var comprovante = _mapper.Map<Comprovantes>(comprovanteDto);
             _context.ComprovantesDB.Add(comprovante);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(RetornaComprovantePorId), new { Id = comprovante.Id }, comprovante);
         }
 
         [HttpPut("{id}")]
-        public IActionResult EditarComprovante(int id, [FromBody] Comprovantes comprovante)
+        public async Task<IActionResult> EditarComprovante(int id, [FromBody] UpdateComprovantesDto comprovanteDto)
         {
-            var comprovanteAntigo = _context.ComprovantesDB.SingleOrDefault(c => c.Id == id);
+            var comprovanteAntigo = await _context.ComprovantesDB.SingleOrDefaultAsync(c => c.Id == id);
             if(comprovanteAntigo == null)            
                 return NotFound();
-            comprovanteAntigo.Id = comprovante.Id;
-            _context.Entry(comprovanteAntigo).CurrentValues.SetValues(comprovante);
-            _context.SaveChanges();
+            _mapper.Map(comprovanteDto, comprovanteAntigo);
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeletaComprovante(int id)
+        public async Task<IActionResult> DeletaComprovante(int id)
         {
-            var comprovanteAntigo = _context.ComprovantesDB.SingleOrDefault(c => c.Id == id);
+            var comprovanteAntigo = await _context.ComprovantesDB.SingleOrDefaultAsync(c => c.Id == id);
             if (comprovanteAntigo == null)
                 return NotFound();
             _context.ComprovantesDB.Remove(comprovanteAntigo);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
     }
