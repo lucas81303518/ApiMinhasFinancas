@@ -1,4 +1,4 @@
-﻿using ApiMinhasFinancas.Models;
+﻿using BibliotecaMinhasFinancas.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.InMemory;
 

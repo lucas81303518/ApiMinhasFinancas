@@ -1,7 +1,6 @@
 ﻿using ApiMinhasFinancas.Data;
-using ApiMinhasFinancas.Data.Dtos.Comprovantes;
-using ApiMinhasFinancas.Dtos.Comprovantes;
-using ApiMinhasFinancas.Models;
+using BibliotecaMinhasFinancas.Data.Dtos.Comprovantes;
+using BibliotecaMinhasFinancas.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

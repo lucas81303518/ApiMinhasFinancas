@@ -1,7 +1,6 @@
 ﻿using ApiMinhasFinancas.Data;
-using ApiMinhasFinancas.Data.Dtos.Documentos;
-using ApiMinhasFinancas.Dtos.Documentos;
-using ApiMinhasFinancas.Models;
+using BibliotecaMinhasFinancas.Data.Dtos.Documentos;
+using BibliotecaMinhasFinancas.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

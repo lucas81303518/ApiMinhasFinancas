@@ -1,11 +1,11 @@
 ﻿using ApiMinhasFinancas.Data;
-using ApiMinhasFinancas.Data.Dtos.Transferencias;
-using ApiMinhasFinancas.Dtos.Transferencias;
-using ApiMinhasFinancas.Models;
+using BibliotecaMinhasFinancas.Data.Dtos.Transferencias;
+using BibliotecaMinhasFinancas.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using BibliotecaMinhasFinancas.Dtos.Transferencias;
 
 namespace ApiMinhasFinancas.Controllers
 {

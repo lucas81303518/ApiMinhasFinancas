@@ -1,12 +1,12 @@
 ﻿using ApiMinhasFinancas.Data;
-using ApiMinhasFinancas.Dtos.FormasPagamento;
-using ApiMinhasFinancas.Models;
+using BibliotecaMinhasFinancas.Data.Dtos.FormasPagamento;
+using BibliotecaMinhasFinancas.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace ApiMinhasFinancas.Controllers
+namespace BibliotecaMinhasFinancas.Controllers
 {
     [ApiController]
     [Route("[controller]")]

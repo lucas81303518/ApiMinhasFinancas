@@ -1,7 +1,7 @@
-﻿using ApiMinhasFinancas.Data.Dtos.Transferencias;
-using ApiMinhasFinancas.Dtos.Transferencias;
-using ApiMinhasFinancas.Models;
+﻿using BibliotecaMinhasFinancas.Data.Dtos.Transferencias;
+using BibliotecaMinhasFinancas.Models;
 using AutoMapper;
+using BibliotecaMinhasFinancas.Dtos.Transferencias;
 
 namespace ApiMinhasFinancas.Profiles
 {

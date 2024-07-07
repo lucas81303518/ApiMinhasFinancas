@@ -1,5 +1,5 @@
-﻿using ApiMinhasFinancas.Dtos.TipoContas;
-using ApiMinhasFinancas.Models;
+﻿using BibliotecaMinhasFinancas.Data.Dtos.TipoContas;
+using BibliotecaMinhasFinancas.Models;
 using AutoMapper;
 
 namespace ApiMinhasFinancas.Profiles

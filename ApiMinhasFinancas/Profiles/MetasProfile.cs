@@ -1,7 +1,7 @@
-﻿using ApiMinhasFinancas.Data.Dtos.Metas;
-using ApiMinhasFinancas.Dtos.Metas;
-using ApiMinhasFinancas.Models;
+﻿using BibliotecaMinhasFinancas.Data.Dtos.Metas;
+using BibliotecaMinhasFinancas.Models;
 using AutoMapper;
+using BibliotecaMinhasFinancas.Dtos.Metas;
 
 namespace ApiMinhasFinancas.Profiles
 {

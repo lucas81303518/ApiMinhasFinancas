@@ -1,5 +1,5 @@
-﻿using ApiMinhasFinancas.Dtos.FormasPagamento;
-using ApiMinhasFinancas.Models;
+﻿using BibliotecaMinhasFinancas.Data.Dtos.FormasPagamento;
+using BibliotecaMinhasFinancas.Models;
 using AutoMapper;
 
 namespace ApiMinhasFinancas.Profiles
