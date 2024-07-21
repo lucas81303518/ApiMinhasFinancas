@@ -24,7 +24,7 @@ public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSc
             var username = credentials[0];
             var password = credentials[1];
        
-            if (username == "teste" && password == "123")
+            if (username == "Admin" && password == "43703b21cb34460fe17ccc86af8cc2489490c00a287acd0db85fed0ea5d177d8")
             {
                 var claims = new[] { new Claim(ClaimTypes.Name, username) };
                 var identity = new ClaimsIdentity(claims, Scheme.Name);

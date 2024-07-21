@@ -11,12 +11,13 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
-//Descomentar para utilizar banco de dados em memória!!
 //builder.Services.AddDbContext<MinhasFinancasContext>(options => options.UseLazyLoadingProxies().UseInMemoryDatabase(databaseName: "TestDatabase"));
 builder.Services.AddDbContext<MinhasFinancasContext>(options => 
 options.UseLazyLoadingProxies().UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
     builder.Services.AddControllers();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+builder.WebHost.UseUrls("http://*:5000");
 
 var app = builder.Build();
 

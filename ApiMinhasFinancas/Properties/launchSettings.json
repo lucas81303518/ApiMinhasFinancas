@@ -8,15 +8,15 @@
       "sslPort": 44339
     }
   },
-  "profiles": {
-    "ApiMinhasFinancas": {
-      "commandName": "Project",
-      "dotnetRunMessages": true,          
-      "applicationUrl": "https://localhost:7119;http://localhost:5119",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+  "profiles": {    
+      "ApiMinhasFinancas": {
+        "commandName": "Project",
+        "dotnetRunMessages": true,
+        "applicationUrl": "http://localhost:5000;http://0.0.0.0:5000",
+        "environmentVariables": {
+          "ASPNETCORE_ENVIRONMENT": "Development"
+        }
       }
-    }
     }
   }
 }

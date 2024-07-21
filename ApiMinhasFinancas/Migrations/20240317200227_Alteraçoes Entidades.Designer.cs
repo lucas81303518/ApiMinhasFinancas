@@ -65,7 +65,7 @@ namespace ApiMinhasFinancas.Migrations
                     b.Property<int>("CodigoMeta")
                         .HasColumnType("integer");
 
-                    b.Property<DateTimeOffset>("DataDocumento")
+                    b.Property<DateTime>("DataDocumento")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Descricao")

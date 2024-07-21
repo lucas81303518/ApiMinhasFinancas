@@ -35,12 +35,12 @@ namespace ApiMinhasFinancas.Migrations
                 table: "DocumentosDB",
                 column: "UsuarioId");
 
-            migrationBuilder.AlterColumn<DateTimeOffset>(
+            migrationBuilder.AlterColumn<DateTime>(
                 name: "DataDocumento",
                 table: "DocumentosDB",
                 type: "date",
                 nullable: false,
-                oldClrType: typeof(DateTimeOffset),
+                oldClrType: typeof(DateTime),
                 oldType: "timestamp with time zone");
         }
 

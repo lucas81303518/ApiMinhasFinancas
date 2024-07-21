@@ -22,7 +22,7 @@ namespace ApiMinhasFinancas.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ApiMinhasFinancas.Models.Comprovantes", b =>
+            modelBuilder.Entity("BibliotecaMinhasFinancas.Models.Comprovantes", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -52,7 +52,7 @@ namespace ApiMinhasFinancas.Migrations
                     b.ToTable("ComprovantesDB");
                 });
 
-            modelBuilder.Entity("ApiMinhasFinancas.Models.Documentos", b =>
+            modelBuilder.Entity("BibliotecaMinhasFinancas.Models.Documentos", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -63,7 +63,7 @@ namespace ApiMinhasFinancas.Migrations
                     b.Property<int>("CodigoMeta")
                         .HasColumnType("integer");
 
-                    b.Property<DateTimeOffset>("DataDocumento")
+                    b.Property<DateTime>("DataDocumento")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Descricao")
@@ -104,7 +104,7 @@ namespace ApiMinhasFinancas.Migrations
                     b.ToTable("DocumentosDB");
                 });
 
-            modelBuilder.Entity("ApiMinhasFinancas.Models.FormasPagamento", b =>
+            modelBuilder.Entity("BibliotecaMinhasFinancas.Models.FormasPagamento", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -124,7 +124,7 @@ namespace ApiMinhasFinancas.Migrations
                     b.ToTable("FormasPgtoDB");
                 });
 
-            modelBuilder.Entity("ApiMinhasFinancas.Models.Metas", b =>
+            modelBuilder.Entity("BibliotecaMinhasFinancas.Models.Metas", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -132,10 +132,10 @@ namespace ApiMinhasFinancas.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTimeOffset>("DataInsercao")
+                    b.Property<DateTime>("DataInsercao")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTimeOffset>("DataPrevisao")
+                    b.Property<DateTime>("DataPrevisao")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Descricao")
@@ -150,7 +150,7 @@ namespace ApiMinhasFinancas.Migrations
                     b.ToTable("MetasDB");
                 });
 
-            modelBuilder.Entity("ApiMinhasFinancas.Models.TipoContas", b =>
+            modelBuilder.Entity("BibliotecaMinhasFinancas.Models.TipoContas", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -170,7 +170,7 @@ namespace ApiMinhasFinancas.Migrations
                     b.ToTable("TipoContasDB");
                 });
 
-            modelBuilder.Entity("ApiMinhasFinancas.Models.Transferencias", b =>
+            modelBuilder.Entity("BibliotecaMinhasFinancas.Models.Transferencias", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -184,7 +184,7 @@ namespace ApiMinhasFinancas.Migrations
                     b.Property<int>("ContaOrigem")
                         .HasColumnType("integer");
 
-                    b.Property<DateTimeOffset>("DataTransferencia")
+                    b.Property<DateTime>("DataTransferencia")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Descricao")
@@ -199,7 +199,7 @@ namespace ApiMinhasFinancas.Migrations
                     b.ToTable("TransferenciasDB");
                 });
 
-            modelBuilder.Entity("ApiMinhasFinancas.Models.Usuarios", b =>
+            modelBuilder.Entity("BibliotecaMinhasFinancas.Models.Usuarios", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -224,9 +224,9 @@ namespace ApiMinhasFinancas.Migrations
                     b.ToTable("UsuariosDB");
                 });
 
-            modelBuilder.Entity("ApiMinhasFinancas.Models.Comprovantes", b =>
+            modelBuilder.Entity("BibliotecaMinhasFinancas.Models.Comprovantes", b =>
                 {
-                    b.HasOne("ApiMinhasFinancas.Models.Documentos", "Documento")
+                    b.HasOne("BibliotecaMinhasFinancas.Models.Documentos", "Documento")
                         .WithMany()
                         .HasForeignKey("DocumentoId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -235,21 +235,21 @@ namespace ApiMinhasFinancas.Migrations
                     b.Navigation("Documento");
                 });
 
-            modelBuilder.Entity("ApiMinhasFinancas.Models.Documentos", b =>
+            modelBuilder.Entity("BibliotecaMinhasFinancas.Models.Documentos", b =>
                 {
-                    b.HasOne("ApiMinhasFinancas.Models.FormasPagamento", "FormaPagamento")
+                    b.HasOne("BibliotecaMinhasFinancas.Models.FormasPagamento", "FormaPagamento")
                         .WithMany()
                         .HasForeignKey("FormaPagamentoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ApiMinhasFinancas.Models.TipoContas", "TipoConta")
+                    b.HasOne("BibliotecaMinhasFinancas.Models.TipoContas", "TipoConta")
                         .WithMany()
                         .HasForeignKey("TipoContaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ApiMinhasFinancas.Models.Usuarios", "Usuario")
+                    b.HasOne("BibliotecaMinhasFinancas.Models.Usuarios", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)

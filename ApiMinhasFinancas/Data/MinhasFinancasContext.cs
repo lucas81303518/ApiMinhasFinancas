@@ -10,7 +10,13 @@ namespace ApiMinhasFinancas.Data
         {
             
         }
-        
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Documentos>()
+                .Property(e => e.DataDocumento)
+                .HasColumnType("date");
+        }
         public DbSet<Usuarios> UsuariosDB { get; set; }
         public DbSet<FormasPagamento> FormasPgtoDB { get; set; }
         public DbSet<Documentos> DocumentosDB { get; set; }

@@ -48,12 +48,12 @@ namespace ApiMinhasFinancas.Controllers
             [FromQuery(Name = "status")]
             [Required] char status,
             [FromQuery(Name = "dataIni")]
-            [Required] DateTimeOffset dataIni,
+            [Required] DateTime dataIni,
             [FromQuery(Name = "dataFim")]
-            [Required] DateTimeOffset dataFim)            
+            [Required] DateTime dataFim)            
         {
             var documentos =  await _context.DocumentosDB
-                                     .Where(d => d.DataDocumento >= dataIni.UtcDateTime && d.DataDocumento <= dataFim.UtcDateTime && d.TipoConta.Tipo == tipo && d.Status == status.ToString())
+                                     .Where(d => d.DataDocumento >= dataIni.Date && d.DataDocumento <= dataFim.Date && d.TipoConta.Tipo == tipo && d.Status == status.ToString())
                                      .ToListAsync();
             return _mapper.Map<List<ReadDocumentosDto>>(documentos);            
         }                            
@@ -65,26 +65,57 @@ namespace ApiMinhasFinancas.Controllers
             [FromQuery(Name = "status")] 
             [Required] char status,
             [FromQuery(Name = "dataIni")]
-            [Required] DateTimeOffset dataIni,
+            [Required] DateTime dataIni,
             [FromQuery(Name = "dataFim")]
-            [Required] DateTimeOffset dataFim)
+            [Required] DateTime dataFim)
         {
             var totalValores = await _context.DocumentosDB
-                              .Where(d => d.DataDocumento >= dataIni.UtcDateTime)
-                              .Where(d => d.DataDocumento <= dataFim.UtcDateTime)
+                              .Where(d => d.DataDocumento >= dataIni.Date)
+                              .Where(d => d.DataDocumento <= dataFim.Date)
                               .Where(d => d.TipoConta.Tipo == tipo)
                               .Where(d => d.Status == status.ToString())
-                              .Where(d => d.Valor > 0)
-                              .OrderBy(d => d.Valor)
+                              .Where(d => d.Valor > 0)                              
                               .GroupBy(d => new { d.TipoConta.Id, d.TipoConta.NomeConta, d.TipoConta.Tipo })
-                              .Select( Valores => new ReadTipoContaTotalDocs
+                              .Select(Valores => new ReadTipoContaTotalDocs
                               {
                                   Id = Valores.Key.Id,
                                   NomeConta = Valores.Key.NomeConta,
                                   Tipo = Valores.Key.Tipo,
-                                  ValorTotal = Valores.Sum(d=> d.Valor)
-                              }).ToListAsync();                             
+                                  ValorTotal = Valores.Sum(d => d.Valor)
+                              }).OrderBy(d => d.ValorTotal)
+                                .ToListAsync();                             
             return Ok(totalValores);
+        }
+
+        [HttpGet("RelatorioDetalhadoTipoContas")]
+        public async Task<ActionResult<IEnumerable<ReadTipoContaTotalDocs>>> RelatorioDetalhadoTipoContas(
+            [FromQuery(Name = "id")]
+            [Required] int id,
+            [FromQuery(Name = "status")]
+            [Required] char status,
+            [FromQuery(Name = "dataIni")]
+            [Required] DateTime dataIni,
+            [FromQuery(Name = "dataFim")]
+            [Required] DateTime dataFim)
+        {
+            var documentosPorTipoConta = await _context.DocumentosDB
+                              .Where(d => d.DataDocumento >= dataIni.Date)
+                              .Where(d => d.DataDocumento <= dataFim.Date)
+                              .Where(d => d.TipoConta.Id == id)
+                              .Where(d => d.Status == status.ToString())
+                              .Where(d => d.Valor > 0)
+                              .Select(Valores => new ReadTipoContaTotalDocs
+                              {
+                                  Id = Valores.TipoContaId,
+                                  NomeConta = Valores.TipoConta.NomeConta,
+                                  Tipo = Valores.TipoConta.Tipo,
+                                  ValorTotal = Valores.Valor,
+                                  DataDocumento = Valores.DataDocumento,
+                                  Descricao = Valores.Descricao,
+                              })
+                              .OrderBy(d => d.DataDocumento)
+                              .ToListAsync();
+            return Ok(documentosPorTipoConta);
         }
 
         [HttpGet("SaldoFormasPagamento")]

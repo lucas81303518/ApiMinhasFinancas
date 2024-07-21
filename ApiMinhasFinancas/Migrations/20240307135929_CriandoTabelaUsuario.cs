@@ -22,7 +22,7 @@ namespace ApiMinhasFinancas.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Usuarios", x => x.Id);
-                });
+                });            
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

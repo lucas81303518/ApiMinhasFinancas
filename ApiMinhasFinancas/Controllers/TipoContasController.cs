@@ -36,6 +36,14 @@ namespace ApiMinhasFinancas.Controllers
             return NotFound();
         }
 
+        [HttpGet("Tipo/{id}")]
+        public async Task<IActionResult> RetornaTipoContasPorTipo(int id)
+        {
+            var tipoConta = await _context.TipoContasDB.Where(t => t.Tipo == id)
+                                                       .ToListAsync();
+            return Ok(tipoConta);           
+        }
+
         [HttpPost]
         public async Task<IActionResult> AdicionaTipoConta([FromBody] UpdateTipoContasDto updateTipoContasDto)
         {
