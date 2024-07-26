@@ -4,24 +4,29 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>0244262f-ef77-4ced-9071-52a6214e5163</UserSecretsId>
   </PropertyGroup>
 
 	<ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.14" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.22" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.20" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="6.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.22">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.14">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="6.0.14" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.22" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.0" />
   </ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\BibliotecaMinhasFinancas\BibliotecaMinhasFinancas\BibliotecaMinhasFinancas.csproj" />
+	  <ProjectReference Include="..\Biblioteca de Classes\BibliotecaMinhasFinancas\BibliotecaMinhasFinancas.csproj" />
 	</ItemGroup>
 
 </Project>

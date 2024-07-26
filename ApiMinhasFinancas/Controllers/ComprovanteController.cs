@@ -5,6 +5,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ApiMinhasFinancas.Services;
 
 namespace ApiMinhasFinancas.Controllers
 {
@@ -15,22 +16,29 @@ namespace ApiMinhasFinancas.Controllers
     {
         private readonly MinhasFinancasContext _context;
         private readonly IMapper _mapper;
-        public ComprovanteController(MinhasFinancasContext context, IMapper mapper)
+        private readonly UsuarioService _usuarioService;
+        public ComprovanteController(MinhasFinancasContext context, IMapper mapper, UsuarioService usuarioService)
         {
             _context = context;
             _mapper = mapper;
+            _usuarioService = usuarioService;
         }
         [HttpGet("documentos/{idDocumento}")]
         public async Task<IEnumerable<ReadComprovanteDto>> RetornaComprovantes(int idDocumento)
         {
-            var comprovantes = await _context.ComprovantesDB.Where(d => d.DocumentoId == idDocumento).ToListAsync();
+            var comprovantes = await _context.ComprovantesDB
+                 .Where(d => d.DocumentoId == idDocumento)
+                 .Where(d => d.UsuarioId == _usuarioService.GetUserId())
+                 .ToListAsync();
             return _mapper.Map<IEnumerable<ReadComprovanteDto>>(comprovantes);
         }
 
         [HttpGet("{Id}")]
         public async Task<IActionResult> RetornaComprovantePorId(int id)
         {
-            var comprovante = await _context.ComprovantesDB.SingleOrDefaultAsync(c => c.Id == id);
+            var comprovante = await _context.ComprovantesDB
+                .Where(d => d.UsuarioId == _usuarioService.GetUserId())
+                .SingleOrDefaultAsync(c => c.Id == id);
             if(comprovante != null)
             {
                 ReadComprovanteDto readComprovanteDto = _mapper.Map<ReadComprovanteDto>(comprovante);
@@ -42,6 +50,7 @@ namespace ApiMinhasFinancas.Controllers
         [HttpPost]
         public async Task<IActionResult> AdicionaComprovante([FromBody] UpdateComprovantesDto comprovanteDto)
         {
+            comprovanteDto.UsuarioId = _usuarioService.GetUserId();
             var comprovante = _mapper.Map<Comprovantes>(comprovanteDto);
             _context.ComprovantesDB.Add(comprovante);
             await _context.SaveChangesAsync();
@@ -51,7 +60,10 @@ namespace ApiMinhasFinancas.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> EditarComprovante(int id, [FromBody] UpdateComprovantesDto comprovanteDto)
         {
-            var comprovanteAntigo = await _context.ComprovantesDB.SingleOrDefaultAsync(c => c.Id == id);
+            comprovanteDto.UsuarioId = _usuarioService.GetUserId();
+            var comprovanteAntigo = await _context.ComprovantesDB
+                .Where(d => d.UsuarioId == _usuarioService.GetUserId())
+                .SingleOrDefaultAsync(c => c.Id == id);
             if(comprovanteAntigo == null)            
                 return NotFound();
             _mapper.Map(comprovanteDto, comprovanteAntigo);
@@ -62,7 +74,9 @@ namespace ApiMinhasFinancas.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletaComprovante(int id)
         {
-            var comprovanteAntigo = await _context.ComprovantesDB.SingleOrDefaultAsync(c => c.Id == id);
+            var comprovanteAntigo = await _context.ComprovantesDB
+                .Where(d => d.UsuarioId == _usuarioService.GetUserId())
+                .SingleOrDefaultAsync(c => c.Id == id);
             if (comprovanteAntigo == null)
                 return NotFound();
             _context.ComprovantesDB.Remove(comprovanteAntigo);

@@ -3,6 +3,7 @@ using System;
 using ApiMinhasFinancas.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ApiMinhasFinancas.Migrations
 {
     [DbContext(typeof(MinhasFinancasContext))]
-    partial class MinhasFinancasContextModelSnapshot : ModelSnapshot
+    [Migration("20240721170946_Campo DataNascimento incluido")]
+    partial class CampoDataNascimentoincluido
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -116,15 +118,10 @@ namespace ApiMinhasFinancas.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("integer");
-
                     b.Property<double>("Valor")
                         .HasColumnType("double precision");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UsuarioId");
 
                     b.ToTable("FormasPgtoDB");
                 });
@@ -147,15 +144,10 @@ namespace ApiMinhasFinancas.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("integer");
-
                     b.Property<double>("Valor")
                         .HasColumnType("double precision");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UsuarioId");
 
                     b.ToTable("MetasDB");
                 });
@@ -175,12 +167,7 @@ namespace ApiMinhasFinancas.Migrations
                     b.Property<int>("Tipo")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UsuarioId");
 
                     b.ToTable("TipoContasDB");
                 });
@@ -206,15 +193,10 @@ namespace ApiMinhasFinancas.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("integer");
-
                     b.Property<double>("Valor")
                         .HasColumnType("double precision");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UsuarioId");
 
                     b.ToTable("TransferenciasDB");
                 });
@@ -235,7 +217,7 @@ namespace ApiMinhasFinancas.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("DataNascimento")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -455,50 +437,6 @@ namespace ApiMinhasFinancas.Migrations
                     b.Navigation("FormaPagamento");
 
                     b.Navigation("TipoConta");
-
-                    b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("BibliotecaMinhasFinancas.Models.FormasPagamento", b =>
-                {
-                    b.HasOne("BibliotecaMinhasFinancas.Models.Usuarios", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("BibliotecaMinhasFinancas.Models.Metas", b =>
-                {
-                    b.HasOne("BibliotecaMinhasFinancas.Models.Usuarios", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("BibliotecaMinhasFinancas.Models.TipoContas", b =>
-                {
-                    b.HasOne("BibliotecaMinhasFinancas.Models.Usuarios", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("BibliotecaMinhasFinancas.Models.Transferencias", b =>
-                {
-                    b.HasOne("BibliotecaMinhasFinancas.Models.Usuarios", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("Usuario");
                 });

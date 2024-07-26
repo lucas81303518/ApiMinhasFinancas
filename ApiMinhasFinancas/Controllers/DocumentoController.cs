@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using ApiMinhasFinancas.Services;
 
 namespace ApiMinhasFinancas.Controllers
 {
@@ -17,22 +18,29 @@ namespace ApiMinhasFinancas.Controllers
     {
         private readonly MinhasFinancasContext _context;
         private readonly IMapper _mapper;
-        public DocumentoController(MinhasFinancasContext context, IMapper mapper)
+        private readonly UsuarioService _usuarioService;
+        public DocumentoController(MinhasFinancasContext context, IMapper mapper, UsuarioService usuarioService)
         {
             _context = context;
             _mapper = mapper;
+            _usuarioService = usuarioService;
         }
 
         [HttpGet]
         public async Task<IEnumerable<ReadDocumentosDto>> RetornaDocumentos()        
         {
-            return _mapper.Map<List<ReadDocumentosDto>>(await _context.DocumentosDB.ToListAsync());                      
+            return _mapper.Map<List<ReadDocumentosDto>>
+                (await _context.DocumentosDB
+                .Where(d=> d.UsuarioId == _usuarioService.GetUserId())
+                .ToListAsync());                      
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> RetornaDocumentoPorId(int id)
         {
-            var documento = await _context.DocumentosDB.SingleOrDefaultAsync(d => d.Id == id);
+            var documento = await _context.DocumentosDB
+                .Where(d => d.UsuarioId == _usuarioService.GetUserId())
+                .SingleOrDefaultAsync(d => d.Id == id);
             if(documento != null)
             {
                 ReadDocumentosDto documentosDto = _mapper.Map<ReadDocumentosDto>(documento);
@@ -53,6 +61,7 @@ namespace ApiMinhasFinancas.Controllers
             [Required] DateTime dataFim)            
         {
             var documentos =  await _context.DocumentosDB
+                                     .Where(d => d.UsuarioId == _usuarioService.GetUserId())
                                      .Where(d => d.DataDocumento >= dataIni.Date && d.DataDocumento <= dataFim.Date && d.TipoConta.Tipo == tipo && d.Status == status.ToString())
                                      .ToListAsync();
             return _mapper.Map<List<ReadDocumentosDto>>(documentos);            
@@ -70,6 +79,7 @@ namespace ApiMinhasFinancas.Controllers
             [Required] DateTime dataFim)
         {
             var totalValores = await _context.DocumentosDB
+                              .Where(d => d.UsuarioId == _usuarioService.GetUserId())
                               .Where(d => d.DataDocumento >= dataIni.Date)
                               .Where(d => d.DataDocumento <= dataFim.Date)
                               .Where(d => d.TipoConta.Tipo == tipo)
@@ -99,6 +109,7 @@ namespace ApiMinhasFinancas.Controllers
             [Required] DateTime dataFim)
         {
             var documentosPorTipoConta = await _context.DocumentosDB
+                              .Where(d => d.UsuarioId == _usuarioService.GetUserId())
                               .Where(d => d.DataDocumento >= dataIni.Date)
                               .Where(d => d.DataDocumento <= dataFim.Date)
                               .Where(d => d.TipoConta.Id == id)
@@ -122,6 +133,7 @@ namespace ApiMinhasFinancas.Controllers
         public async Task<ActionResult<IEnumerable<ReadSaldoFormasPagamentoDto>>> ObterSaldoFormasPagamento()
         {
             var saldos = await _context.DocumentosDB
+                .Where(d => d.UsuarioId == _usuarioService.GetUserId())
                 .Where(d => d.DataDocumento <= DateTime.UtcNow)
                 .GroupBy(d => new { d.FormaPagamento.Id, d.FormaPagamento.Nome })                
                 .Select(SaldoFormaPagamento => new ReadSaldoFormasPagamentoDto
@@ -137,6 +149,7 @@ namespace ApiMinhasFinancas.Controllers
         public async Task<ActionResult<IEnumerable<ReadSaldoFormasPagamentoDto>>> ObterSaldoFormaPagamentoPorId(int id)
         {
             var saldos = await _context.DocumentosDB
+                .Where(d => d.UsuarioId == _usuarioService.GetUserId())
                 .Where(d => d.DataDocumento <= DateTime.UtcNow)
                 .Where(d => d.FormaPagamentoId == id)
                 .SumAsync(d => d.TipoConta.Tipo == 1 && d.Status == "E" ? d.Valor : (d.TipoConta.Tipo == 2 && d.Status == "P" ? -d.Valor : 0));
@@ -147,10 +160,12 @@ namespace ApiMinhasFinancas.Controllers
         public async Task<ActionResult<double>> ObterSaldoGeral()
         {            
             var saldoEntrada = await _context.DocumentosDB
+                .Where(d => d.UsuarioId == _usuarioService.GetUserId())
                 .Where(d => d.DataDocumento <= DateTime.UtcNow && d.TipoConta.Tipo == 1)
                 .SumAsync(d => d.Valor);
 
             var saldoSaida = await _context.DocumentosDB
+                .Where(d => d.UsuarioId == _usuarioService.GetUserId())
                 .Where(d => d.DataDocumento <= DateTime.UtcNow && d.TipoConta.Tipo == 2 && d.Status == "P")
                 .SumAsync(d => d.Valor);                     
             return Ok(saldoEntrada - saldoSaida);            
@@ -164,6 +179,7 @@ namespace ApiMinhasFinancas.Controllers
             var dataAtual = DateTime.UtcNow;
           
             var saldosPorMes = await _context.DocumentosDB
+                .Where(d => d.UsuarioId == _usuarioService.GetUserId())
                 .Where(d => d.DataDocumento >= dataInicial && d.DataDocumento <= dataAtual && d.TipoConta.Tipo == tipo)
                 .GroupBy(d => new { d.DataDocumento.Year, d.DataDocumento.Month })
                 .Select(g => new ReadMesTotalDto
@@ -180,6 +196,7 @@ namespace ApiMinhasFinancas.Controllers
         [HttpPost]
         public async Task<IActionResult> AdicionaDocumento([FromBody] UpdateDocumentosDto updateDocumentosDto)
         {
+            updateDocumentosDto.UsuarioId = _usuarioService.GetUserId();
             var documento = _mapper.Map<Documentos>(updateDocumentosDto);
             _context.DocumentosDB.Add(documento);
             await _context.SaveChangesAsync();
@@ -189,7 +206,10 @@ namespace ApiMinhasFinancas.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> EditaDocumento(int id, [FromBody] UpdateDocumentosDto updateDocumentosDto)
         {
-            var documento = await _context.DocumentosDB.SingleOrDefaultAsync(d => d.Id == id);
+            updateDocumentosDto.UsuarioId = _usuarioService.GetUserId();
+            var documento = await _context.DocumentosDB
+                .Where(d => d.UsuarioId == _usuarioService.GetUserId())
+                .SingleOrDefaultAsync(d => d.Id == id);
             if (documento == null)
                 return NotFound();
             _mapper.Map(updateDocumentosDto, documento);
@@ -200,7 +220,9 @@ namespace ApiMinhasFinancas.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletaDocumento(int id)
         {
-            var documento = await _context.DocumentosDB.SingleOrDefaultAsync(d => d.Id == id);
+            var documento = await _context.DocumentosDB
+                .Where(d => d.UsuarioId == _usuarioService.GetUserId())
+                .SingleOrDefaultAsync(d => d.Id == id);
             if (documento == null)
                 return NotFound();
             _context.DocumentosDB.Remove(documento);

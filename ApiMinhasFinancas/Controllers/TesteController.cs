@@ -5,7 +5,7 @@ namespace ApiMinhasFinancas.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    //[Authorize]
     public class TesteController: ControllerBase
     {
         [HttpGet]

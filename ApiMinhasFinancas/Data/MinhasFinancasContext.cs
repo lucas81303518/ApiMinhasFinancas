@@ -1,12 +1,15 @@
 ﻿using BibliotecaMinhasFinancas.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.InMemory;
 
 namespace ApiMinhasFinancas.Data
 {
-    public class MinhasFinancasContext: DbContext
+    public class MinhasFinancasContext: IdentityDbContext<Usuarios, IdentityRole<int>, int>
     {    
-        public MinhasFinancasContext(DbContextOptions<MinhasFinancasContext> options) : base(options)
+        public MinhasFinancasContext(DbContextOptions<MinhasFinancasContext> options) 
+            : base(options)
         {
             
         }

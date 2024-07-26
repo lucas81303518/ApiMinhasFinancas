@@ -3,6 +3,7 @@ using System;
 using ApiMinhasFinancas.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ApiMinhasFinancas.Migrations
 {
     [DbContext(typeof(MinhasFinancasContext))]
-    partial class MinhasFinancasContextModelSnapshot : ModelSnapshot
+    [Migration("20240726014124_Incluindo Campo de Usuário em cada tabela, para identificar os registros de cada usuário")]
+    partial class IncluindoCampodeUsuárioemcadatabelaparaidentificarosregistrosdecadausuário
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
