@@ -16,4 +16,4 @@ Tecnologias utilizadas:
 -Injeção de Dependências
 -Migrations 
 -MVC
--Autenticação Básica 
+-Autenticação JWT
