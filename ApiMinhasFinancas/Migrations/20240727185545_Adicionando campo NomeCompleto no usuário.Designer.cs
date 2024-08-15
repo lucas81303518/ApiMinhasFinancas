@@ -3,6 +3,7 @@ using System;
 using ApiMinhasFinancas.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ApiMinhasFinancas.Migrations
 {
     [DbContext(typeof(MinhasFinancasContext))]
-    partial class MinhasFinancasContextModelSnapshot : ModelSnapshot
+    [Migration("20240727185545_Adicionando campo NomeCompleto no usuário")]
+    partial class AdicionandocampoNomeCompletonousuário
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -248,11 +250,6 @@ namespace ApiMinhasFinancas.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("FotoBase64")
-                        .IsRequired()
-                        .HasMaxLength(1048576)
-                        .HasColumnType("character varying(1048576)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BibliotecaMinhasFinancas.Dtos.Metas;
 using ApiMinhasFinancas.Data;
+using ApiMinhasFinancas.Services;
 
 namespace BibliotecaMinhasFinancas.Controllers
 {
@@ -19,22 +20,29 @@ namespace BibliotecaMinhasFinancas.Controllers
     {
         private readonly MinhasFinancasContext _context;
         private readonly IMapper _mapper;
-        public MetaController(MinhasFinancasContext context, IMapper mapper)
+        private readonly UsuarioService _usuarioService;
+        public MetaController(MinhasFinancasContext context, IMapper mapper, UsuarioService usuarioService = null)
         {
             _context = context;
             _mapper = mapper;
+            _usuarioService = usuarioService;
         }
 
         [HttpGet]
         public async Task<IEnumerable<ReadMetasDto>> ObterMetas()
         {
-            return _mapper.Map<List<ReadMetasDto>>(await _context.MetasDB.ToListAsync());          
+            return _mapper.Map<List<ReadMetasDto>>
+                (await _context.MetasDB
+                .Where(m=> m.UsuarioId == _usuarioService.GetUserId())
+                .ToListAsync());          
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> ObterMetaPorId(int id)
         {
-            var meta = await _context.MetasDB.SingleOrDefaultAsync(m => m.Id == id);
+            var meta = await _context.MetasDB
+                .Where(m => m.UsuarioId == _usuarioService.GetUserId())
+                .SingleOrDefaultAsync(m => m.Id == id);
             if (meta != null)
             {
                 ReadMetasDto readMeta = _mapper.Map<ReadMetasDto>(meta);
@@ -46,6 +54,7 @@ namespace BibliotecaMinhasFinancas.Controllers
         [HttpPost]
         public async Task<IActionResult> AdicionaMeta([FromBody] UpdateMetasDto updateMetasDto)
         {
+            updateMetasDto.UsuarioId = _usuarioService.GetUserId();
             var meta = _mapper.Map<Metas>(updateMetasDto);
             _context.MetasDB.Add(meta);
             await _context.SaveChangesAsync();
@@ -55,7 +64,10 @@ namespace BibliotecaMinhasFinancas.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> EditaMeta(int id, [FromBody] UpdateMetasDto updateMetasDto)
         {
-            var meta = await _context.MetasDB.SingleOrDefaultAsync(m => m.Id == id);
+            updateMetasDto.UsuarioId = _usuarioService.GetUserId();
+            var meta = await _context.MetasDB
+                .Where(m => m.UsuarioId == _usuarioService.GetUserId())
+                .SingleOrDefaultAsync(m => m.Id == id);
             if (meta == null)
                 return NotFound();
             _mapper.Map(updateMetasDto, meta);
@@ -66,7 +78,9 @@ namespace BibliotecaMinhasFinancas.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletaMeta(int id)
         {
-            var meta = await _context.MetasDB.SingleOrDefaultAsync(m => m.Id == id);
+            var meta = await _context.MetasDB
+                .Where(m => m.UsuarioId == _usuarioService.GetUserId())
+                .SingleOrDefaultAsync(m => m.Id == id);
             if (meta == null)
                 return NotFound();
             _context.MetasDB.Remove(meta);

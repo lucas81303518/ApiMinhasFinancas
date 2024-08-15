@@ -32,11 +32,19 @@ namespace BibliotecaMinhasFinancas.Controllers
             return BadRequest(new { mensagem = resultado.Mensagem, erros = resultado.Erros });
         }
 
-        [HttpPost("Login")]
-        public async Task<IActionResult> Login(LoginUsuario dto)
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginUsuario dto)
         {
-            string token = await _userService.Login(dto);            
-            return Ok(token);                       
+            var resultado = await _userService.Login(dto);
+
+            if (resultado.Sucesso)
+            {
+                return Ok(new { Token = resultado.Mensagem });
+            }
+            else
+            {
+                return Unauthorized(resultado.Mensagem);
+            }
         }
 
     }

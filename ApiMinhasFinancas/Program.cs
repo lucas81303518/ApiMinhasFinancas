@@ -16,14 +16,18 @@ using System.Text;
  * 
 */
 var builder = WebApplication.CreateBuilder(args);
-//builder.Services.AddDbContext<MinhasFinancasContext>(options => options.UseLazyLoadingProxies().UseInMemoryDatabase(databaseName: "TestDatabase"));
-
 var connectionString = builder.Configuration["ConnectionStrings:DefaultConnection"];
+
+//builder.Services.AddDbContext<MinhasFinancasContext>
+//  (options =>
+//      options.UseLazyLoadingProxies()
+//             .UseInMemoryDatabase(databaseName: "TestDatabase"));
+
 builder.Services.AddDbContext<MinhasFinancasContext>
-    (options => 
+    (options =>
     {
-       options.UseLazyLoadingProxies()
-              .UseNpgsql(connectionString);
+        options.UseLazyLoadingProxies()
+               .UseNpgsql(connectionString);
     });
 
 builder.Services
@@ -41,7 +45,7 @@ builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-builder.WebHost.UseUrls("http://*:5000");
+builder.WebHost.UseUrls("http://*:5000", "https://*:5001");
 var SymetricSecurityKey = builder.Configuration["SymmetricSecurityKey"];
 builder.Services.AddAuthentication(option =>
 {

@@ -5,6 +5,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ApiMinhasFinancas.Services;
 
 namespace ApiMinhasFinancas.Controllers
 {
@@ -15,22 +16,29 @@ namespace ApiMinhasFinancas.Controllers
     {
         private readonly MinhasFinancasContext _context;
         private readonly IMapper _mapper;
-        public TipoContasController(MinhasFinancasContext context, IMapper mapper)
+        private UsuarioService _usuarioService;
+
+        public TipoContasController(MinhasFinancasContext context, IMapper mapper, UsuarioService usuarioService)
         {
             _context = context;
             _mapper = mapper;
+            _usuarioService = usuarioService;
         }
 
         [HttpGet]
         public async Task<IEnumerable<ReadTipoContaDto>> RetornaTipoContas()
         {
-            return _mapper.Map<List<ReadTipoContaDto>>(await _context.TipoContasDB.ToListAsync());
+            return _mapper.Map<List<ReadTipoContaDto>>(await _context.TipoContasDB
+                .Where(t=> t.UsuarioId == _usuarioService.GetUserId())
+                .ToListAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> RetornaTipoContasPorId(int id)
         {
-            var tipoConta = await _context.TipoContasDB.SingleOrDefaultAsync(t => t.Id == id);
+            var tipoConta = await _context.TipoContasDB
+                .Where(t => t.UsuarioId == _usuarioService.GetUserId())
+                .SingleOrDefaultAsync(t => t.Id == id);
             if(tipoConta != null)
                 return Ok(tipoConta);
             return NotFound();
@@ -40,6 +48,7 @@ namespace ApiMinhasFinancas.Controllers
         public async Task<IActionResult> RetornaTipoContasPorTipo(int id)
         {
             var tipoConta = await _context.TipoContasDB.Where(t => t.Tipo == id)
+                                                       .Where(t => t.UsuarioId == _usuarioService.GetUserId())
                                                        .ToListAsync();
             return Ok(tipoConta);           
         }
@@ -47,6 +56,7 @@ namespace ApiMinhasFinancas.Controllers
         [HttpPost]
         public async Task<IActionResult> AdicionaTipoConta([FromBody] UpdateTipoContasDto updateTipoContasDto)
         {
+            updateTipoContasDto.UsuarioId = _usuarioService.GetUserId();
             TipoContas tipoContas = _mapper.Map<TipoContas>(updateTipoContasDto);
             _context.TipoContasDB.Add(tipoContas);
             await _context.SaveChangesAsync();
@@ -56,7 +66,10 @@ namespace ApiMinhasFinancas.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> EditaTipoConta(int id, [FromBody] UpdateTipoContasDto updateTipoContasDto)
         {
-            var tipoContas = await _context.TipoContasDB.SingleOrDefaultAsync(t => t.Id == id);
+            updateTipoContasDto.UsuarioId = _usuarioService.GetUserId();
+            var tipoContas = await _context.TipoContasDB
+                .Where(t => t.UsuarioId == _usuarioService.GetUserId())
+                .SingleOrDefaultAsync(t => t.Id == id);
             if (tipoContas == null)
                 return NotFound();
             _mapper.Map(updateTipoContasDto, tipoContas);
@@ -67,7 +80,9 @@ namespace ApiMinhasFinancas.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletaTipoConta(int id)
         {
-            var tipoContas = await _context.TipoContasDB.SingleOrDefaultAsync(t=> t.Id == id);
+            var tipoContas = await _context.TipoContasDB
+                .Where(t => t.UsuarioId == _usuarioService.GetUserId())
+                .SingleOrDefaultAsync(t=> t.Id == id);
             if (tipoContas == null)
                 return NotFound();
             _context.TipoContasDB.Remove(tipoContas);

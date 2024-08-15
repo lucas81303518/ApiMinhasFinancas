@@ -5,6 +5,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ApiMinhasFinancas.Services;
 
 namespace BibliotecaMinhasFinancas.Controllers
 {
@@ -15,22 +16,31 @@ namespace BibliotecaMinhasFinancas.Controllers
     {
         private readonly MinhasFinancasContext _context;
         private readonly IMapper _mapper;
-        public FormasPagamentoController(MinhasFinancasContext context, IMapper mapper)
+        private UsuarioService _usuarioService;
+
+        public FormasPagamentoController(MinhasFinancasContext context, IMapper mapper, UsuarioService usuarioService)
         {
             _context = context;
             _mapper = mapper;
+            _usuarioService = usuarioService;
         }
 
         [HttpGet]
         public async Task<IActionResult> RetornaFormasPagamento()
         {
-            return Ok(_mapper.Map<IEnumerable<ReadFormaPagamentoDto>>(await _context.FormasPgtoDB.ToListAsync()));
+            return Ok(_mapper.Map<IEnumerable<ReadFormaPagamentoDto>>
+            (await _context.FormasPgtoDB
+                .Where(f => f.UsuarioId == _usuarioService.GetUserId())
+                .ToListAsync()));
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> RetornaFormasPagamentoPorId(int id)
         {
-            var formasPgto = _mapper.Map<ReadFormaPagamentoDto>(await _context.FormasPgtoDB.SingleOrDefaultAsync(f => f.Id == id));
+            var formasPgto = _mapper.Map<ReadFormaPagamentoDto>
+                (await _context.FormasPgtoDB
+                .Where(f => f.UsuarioId == _usuarioService.GetUserId())
+                .SingleOrDefaultAsync(f => f.Id == id));
             if(formasPgto != null)
                 return Ok(formasPgto);
             return NotFound();
@@ -39,6 +49,7 @@ namespace BibliotecaMinhasFinancas.Controllers
         [HttpPost]
         public async Task<IActionResult> AdicionaFormasPagamento([FromBody] UpdateFormasPagamentoDto formasPagamentoDto)
         {
+            formasPagamentoDto.UsuarioId = _usuarioService.GetUserId();
             FormasPagamento formasPagamento = _mapper.Map<FormasPagamento>(formasPagamentoDto);
             _context.FormasPgtoDB.Add(formasPagamento);
             await _context.SaveChangesAsync();
@@ -48,7 +59,10 @@ namespace BibliotecaMinhasFinancas.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> EditaFormasPagamento(int id, [FromBody] UpdateFormasPagamentoDto formasPagamentoDto)
         {
-            var formasPgtoAntigo = await _context.FormasPgtoDB.SingleOrDefaultAsync(f => f.Id == id);
+            formasPagamentoDto.UsuarioId = _usuarioService.GetUserId();
+            var formasPgtoAntigo = await _context.FormasPgtoDB
+                .Where(f=> f.UsuarioId == _usuarioService.GetUserId())
+                .SingleOrDefaultAsync(f => f.Id == id);
             if (formasPgtoAntigo == null)
                 return NotFound();
             _mapper.Map(formasPgtoAntigo, formasPagamentoDto);
@@ -59,7 +73,9 @@ namespace BibliotecaMinhasFinancas.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletaFormaPagamento(int id)
         {
-            var formaPagamento = await _context.FormasPgtoDB.SingleOrDefaultAsync(f => f.Id == id);
+            var formaPagamento = await _context.FormasPgtoDB
+                .Where(f => f.UsuarioId == _usuarioService.GetUserId())
+                .SingleOrDefaultAsync(f => f.Id == id);
             if (formaPagamento == null)
                 return NotFound();
             _context.FormasPgtoDB.Remove(formaPagamento);

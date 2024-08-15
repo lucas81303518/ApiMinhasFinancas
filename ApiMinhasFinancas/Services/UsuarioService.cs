@@ -59,30 +59,51 @@ namespace ApiMinhasFinancas.Services
             }
             else
             {
+                var erros = resultado.Errors.Select(e => e.Description).ToList();
+                var mensagem = "Por favor, corrija os seguintes erros: " + string.Join(", ", erros);
+
                 return new CadastroUsuarioResultado
                 {
                     Sucesso = false,
-                    Mensagem = "Erro ao cadastrar usuário!",
-                    Erros = resultado.Errors.Select(e => e.Description)
+                    Mensagem = mensagem,
+                    Erros = erros
                 };
             }
         }
-
-        public async Task<string> Login(LoginUsuario dto)
+        public async Task<CadastroUsuarioResultado> Login(LoginUsuario dto)
         {
-            var resultado = await 
-                _userSign.PasswordSignInAsync(dto.UserName, dto.Password, false, false);
+            var resultado = await _userSign.PasswordSignInAsync(dto.UserName, dto.Password, false, false);
 
             if (!resultado.Succeeded)
             {
-                throw new Exception("Usuário não autenticado!");
+                return new CadastroUsuarioResultado
+                {
+                    Sucesso = false,
+                    Mensagem = "Usuário não autenticado!"
+                };
             }
 
             var usuario = _userSign
-                          .UserManager
-                          .Users.FirstOrDefault(u => u.NormalizedUserName == dto.UserName.ToUpper());
+                            .UserManager
+                            .Users
+                            .FirstOrDefault(u => u.NormalizedUserName == dto.UserName.ToUpper());
 
-            return _tokenService.GenerateToken(usuario);            
+            if (usuario == null)
+            {
+                return new CadastroUsuarioResultado
+                {
+                    Sucesso = false,
+                    Mensagem = "Usuário não encontrado!"
+                };
+            }
+
+            var token = _tokenService.GenerateToken(usuario);
+
+            return new CadastroUsuarioResultado
+            {
+                Sucesso = true,
+                Mensagem = token
+            };
         }
     }
 }
