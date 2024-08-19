@@ -2,7 +2,9 @@
 using BibliotecaMinhasFinancas.Data.Dtos.Usuarios;
 using BibliotecaMinhasFinancas.Dtos.Usuarios;
 using BibliotecaMinhasFinancas.Models;
+using BibliotecaMinhasFinancas.Utils;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ApiMinhasFinancas.Services
 {
@@ -44,6 +46,38 @@ namespace ApiMinhasFinancas.Services
         {
             return _httpContextAccessor.HttpContext?.User.FindFirst("username")?.Value;
         }
+        public async Task<ReadUsuariosDto> RecuperarUsuario()
+        {           
+            int userId = GetUserId();        
+            var usuario = await _userManager.FindByIdAsync(userId.ToString());
+            if (usuario == null)
+            {
+                return null; 
+            }           
+            var usuarioDto = _mapper.Map<ReadUsuariosDto>(usuario);
+
+            return usuarioDto;
+        }
+
+        public async Task<string> AtualizarFoto(UpdateFoto fotoBase64)
+        {
+            if (!Funcoes.IsBase64String(fotoBase64.FotoBase64))
+                return "Base 64 inválido!";
+            
+            var usuario = await _userManager.FindByIdAsync(GetUserId().ToString());
+            if (usuario == null)
+                return "Usuário não encontrado!";
+          
+            usuario.FotoBase64 = fotoBase64.FotoBase64;
+            IdentityResult resultado = await _userManager.UpdateAsync(usuario);
+            if (! resultado.Succeeded)
+            {
+                return "Erro ao atualizar foto do usuário!";                
+            }
+
+            return "OK";
+        }
+
         public async Task<CadastroUsuarioResultado> CadastrarUsuario(UpdateUsuarioDto dto)
         {
             Usuarios usuario = _mapper.Map<Usuarios>(dto);

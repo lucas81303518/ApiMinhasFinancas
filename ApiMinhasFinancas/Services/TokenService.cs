@@ -31,7 +31,7 @@ namespace ApiMinhasFinancas.Services
 
             var token = new JwtSecurityToken
                 (
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.Now.AddDays(30),
                 claims: claims,
                 signingCredentials: sigingCredentials
                 );

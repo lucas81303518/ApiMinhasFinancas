@@ -47,5 +47,23 @@ namespace BibliotecaMinhasFinancas.Controllers
             }
         }
 
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> RecuperarUsuario()
+        {
+            return Ok(await _userService.RecuperarUsuario());
+        }
+
+        [Authorize]
+        [HttpPut("AtualizarFoto")]
+        public async Task<IActionResult> AtualizarFoto([FromBody] UpdateFoto fotoBase64)
+        {
+            var resultado = await _userService.AtualizarFoto(fotoBase64);
+            if(resultado == "OK")
+                return NoContent();           
+
+            return BadRequest(resultado);
+        }
     }
 }
