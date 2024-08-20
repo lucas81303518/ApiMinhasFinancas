@@ -22,14 +22,14 @@ namespace BibliotecaMinhasFinancas.Controllers
         }
 
         [HttpPost("Cadastrar")]
-        public async Task<IActionResult> CadastrarUsuario(UpdateUsuarioDto dto)
+        public async Task<IActionResult> CadastrarUsuario(CreateUsuarioDto dto)
         {
             var resultado = await _userService.CadastrarUsuario(dto);
-            if (resultado.Sucesso)
+            if (resultado == "OK")
             {
-                return Ok(resultado.Mensagem);
+                return Ok();
             }
-            return BadRequest(new { mensagem = resultado.Mensagem, erros = resultado.Erros });
+            return BadRequest(resultado);
         }
 
         [HttpPost("login")]
@@ -37,22 +37,29 @@ namespace BibliotecaMinhasFinancas.Controllers
         {
             var resultado = await _userService.Login(dto);
 
-            if (resultado.Sucesso)
+            if ((resultado != "Usuário não autenticado!") && 
+                (resultado != "Usuário não encontrado!"))
             {
-                return Ok(new { Token = resultado.Mensagem });
+                return Ok(new { Token = resultado });
             }
-            else
-            {
-                return Unauthorized(resultado.Mensagem);
-            }
+            return BadRequest(resultado);
         }
-
 
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> RecuperarUsuario()
         {
             return Ok(await _userService.RecuperarUsuario());
+        }
+
+        [Authorize]
+        [HttpPut("AlterarUsuario")]
+        public async Task<IActionResult> AlterarUsuario(UpdateUsuarioDto updateUsuarioDto)
+        {
+            var retorno = await _userService.AlterarUsuario(updateUsuarioDto);
+            if (retorno == "OK")
+                return Ok();
+            return BadRequest(retorno);
         }
 
         [Authorize]

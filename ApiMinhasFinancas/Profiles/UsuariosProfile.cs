@@ -2,6 +2,7 @@
 using BibliotecaMinhasFinancas.Models;
 using AutoMapper;
 using BibliotecaMinhasFinancas.Dtos.Usuarios;
+using BibliotecaMinhasFinancas.Data.Dtos.Usuarios;
 
 namespace ApiMinhasFinancas.Profiles
 {
@@ -9,8 +10,9 @@ namespace ApiMinhasFinancas.Profiles
     {
         public UsuariosProfile()
         {
-            CreateMap<UpdateUsuarioDto, Usuarios>();     
+            CreateMap<CreateUsuarioDto, Usuarios>();     
             CreateMap<Usuarios, ReadUsuariosDto>();
+            CreateMap<UpdateUsuarioDto, Usuarios>();
         }
     }
 }

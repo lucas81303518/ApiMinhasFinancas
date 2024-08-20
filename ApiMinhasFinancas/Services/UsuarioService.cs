@@ -14,13 +14,6 @@ namespace ApiMinhasFinancas.Services
         string GetUsername();
     }
 
-    public class CadastroUsuarioResultado
-    {
-        public bool Sucesso { get; set; }
-        public string Mensagem { get; set; }
-        public IEnumerable<string> Erros { get; set; }
-    }
-
     public class UsuarioService : IUserService
     {
         private IMapper _mapper;
@@ -57,7 +50,7 @@ namespace ApiMinhasFinancas.Services
             var usuarioDto = _mapper.Map<ReadUsuariosDto>(usuario);
 
             return usuarioDto;
-        }
+        }        
 
         public async Task<string> AtualizarFoto(UpdateFoto fotoBase64)
         {
@@ -78,43 +71,43 @@ namespace ApiMinhasFinancas.Services
             return "OK";
         }
 
-        public async Task<CadastroUsuarioResultado> CadastrarUsuario(UpdateUsuarioDto dto)
+        public async Task<string> CadastrarUsuario(CreateUsuarioDto dto)
         {
             Usuarios usuario = _mapper.Map<Usuarios>(dto);
             IdentityResult resultado = await _userManager.CreateAsync(usuario, dto.Password);
 
             if (resultado.Succeeded)
             {
-                return new CadastroUsuarioResultado
-                {
-                    Sucesso = true,
-                    Mensagem = "Usuário cadastrado com sucesso!"
-                };
+                return "OK";
             }
             else
             {
-                var erros = resultado.Errors.Select(e => e.Description).ToList();
-                var mensagem = "Por favor, corrija os seguintes erros: " + string.Join(", ", erros);
-
-                return new CadastroUsuarioResultado
-                {
-                    Sucesso = false,
-                    Mensagem = mensagem,
-                    Erros = erros
-                };
+                return "Erro ao inserir usuário";
             }
         }
-        public async Task<CadastroUsuarioResultado> Login(LoginUsuario dto)
+
+        public async Task<string> AlterarUsuario(UpdateUsuarioDto updateUsuarioDto)
+        {
+            int userId = GetUserId();
+            var usuario = await _userManager.FindByIdAsync(userId.ToString());
+            if (usuario == null)
+            {
+                return "Usuário não encontrado!";
+            }
+            _mapper.Map(updateUsuarioDto, usuario);
+            IdentityResult resultado = await _userManager.UpdateAsync(usuario);
+            if (resultado.Succeeded)
+                return "OK";
+            return "Erro ao Atualizar usuário!";
+        }
+
+        public async Task<string> Login(LoginUsuario dto)
         {
             var resultado = await _userSign.PasswordSignInAsync(dto.UserName, dto.Password, false, false);
 
             if (!resultado.Succeeded)
             {
-                return new CadastroUsuarioResultado
-                {
-                    Sucesso = false,
-                    Mensagem = "Usuário não autenticado!"
-                };
+                return "Usuário não autenticado!";
             }
 
             var usuario = _userSign
@@ -124,20 +117,12 @@ namespace ApiMinhasFinancas.Services
 
             if (usuario == null)
             {
-                return new CadastroUsuarioResultado
-                {
-                    Sucesso = false,
-                    Mensagem = "Usuário não encontrado!"
-                };
+                return "Usuário não encontrado!";               
             }
 
             var token = _tokenService.GenerateToken(usuario);
 
-            return new CadastroUsuarioResultado
-            {
-                Sucesso = true,
-                Mensagem = token
-            };
+            return token;
         }
     }
 }
