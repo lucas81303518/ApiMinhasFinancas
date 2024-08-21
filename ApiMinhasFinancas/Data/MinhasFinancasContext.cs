@@ -27,6 +27,7 @@ namespace ApiMinhasFinancas.Data
         public DbSet<Comprovantes> ComprovantesDB { get; set; }
         public DbSet<Metas> MetasDB { get; set; }
         public DbSet<Transferencias> TransferenciasDB { get; set; }
+        public DbSet<SaldoMensal> SaldoMensalDB { get; set; }
 
     }
 }

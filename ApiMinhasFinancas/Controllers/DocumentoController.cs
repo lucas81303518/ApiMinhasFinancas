@@ -16,14 +16,16 @@ namespace ApiMinhasFinancas.Controllers
     [Authorize]
     public class DocumentoController: ControllerBase
     {
-        private readonly MinhasFinancasContext _context;
-        private readonly IMapper _mapper;
         private readonly UsuarioService _usuarioService;
-        public DocumentoController(MinhasFinancasContext context, IMapper mapper, UsuarioService usuarioService)
+        private readonly MinhasFinancasContext _context;
+        private readonly IMapper _mapper;        
+        private readonly SaldoMensalService _saldoMensalService;
+        public DocumentoController(MinhasFinancasContext context, IMapper mapper, UsuarioService usuarioService, SaldoMensalService saldoMensalService)
         {
             _context = context;
             _mapper = mapper;
             _usuarioService = usuarioService;
+            _saldoMensalService = saldoMensalService;
         }
 
         [HttpGet]
@@ -199,8 +201,12 @@ namespace ApiMinhasFinancas.Controllers
             updateDocumentosDto.UsuarioId = _usuarioService.GetUserId();
             var documento = _mapper.Map<Documentos>(updateDocumentosDto);
             _context.DocumentosDB.Add(documento);
+            await _saldoMensalService.AtualizarSaldoMensal
+                (updateDocumentosDto.DataDocumento.Month,
+                updateDocumentosDto.DataDocumento.Year,
+                updateDocumentosDto.Valor);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(RetornaDocumentoPorId), new { Id = documento.Id }, updateDocumentosDto);
+            return Ok();
         }
 
         [HttpPut("{id}")]
@@ -212,7 +218,12 @@ namespace ApiMinhasFinancas.Controllers
                 .SingleOrDefaultAsync(d => d.Id == id);
             if (documento == null)
                 return NotFound();
-            _mapper.Map(updateDocumentosDto, documento);
+            double valorAtualizado = updateDocumentosDto.Valor - documento.Valor;
+            _mapper.Map(updateDocumentosDto, documento);            
+            await _saldoMensalService.AtualizarSaldoMensal(
+                updateDocumentosDto.DataDocumento.Month,
+                updateDocumentosDto.DataDocumento.Year,
+                valorAtualizado);          
             await _context.SaveChangesAsync();
             return NoContent();
         }
@@ -226,6 +237,10 @@ namespace ApiMinhasFinancas.Controllers
             if (documento == null)
                 return NotFound();
             _context.DocumentosDB.Remove(documento);
+            await _saldoMensalService.AtualizarSaldoMensal(
+                documento.DataDocumento.Month,
+                documento.DataDocumento.Year,
+                (documento.Valor * -1));
             await _context.SaveChangesAsync();
             return NoContent();
         }
