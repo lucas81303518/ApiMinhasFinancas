@@ -1,7 +1,9 @@
 ﻿using ApiMinhasFinancas.Data;
 using AutoMapper;
+using BibliotecaMinhasFinancas.Data.Dtos.Saldo;
 using BibliotecaMinhasFinancas.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Drawing;
 
 namespace ApiMinhasFinancas.Services
 {
@@ -15,26 +17,83 @@ namespace ApiMinhasFinancas.Services
             _context = context;
         }
 
-        public async Task AtualizarSaldoMensal(int mes, int ano, double valorDocumento)
+        public async Task<Saldo> ObterSaldoPorUsuarioIdAsync(int usuarioId)
         {
-            if (valorDocumento == 0)
-                return;
+            return await _context.Set<Saldo>()
+                .FirstOrDefaultAsync(s => s.UsuarioId == usuarioId);
+        }
 
-            var saldoMensal = await _context.SaldoMensalDB
-            .FirstOrDefaultAsync(s => s.Mes == mes && s.Ano == ano && 
-            s.UsuarioId == _usuarioService.GetUserId());
+        public async Task CriarSaldoAsync(Saldo saldo)
+        {
+            await _context.SaldoMensalDB.AddAsync(saldo);
+        }
+        
+        public async Task AlterarSaldoAsync(double valorNovo)
+        {
+            var saldo = await ObterSaldoPorUsuarioIdAsync(_usuarioService.GetUserId());
 
-            if (saldoMensal == null)
+            if (saldo == null)
             {
-                saldoMensal = new SaldoMensal { Mes = mes, Ano = ano, 
-                                                UsuarioId = _usuarioService.GetUserId(), 
-                                                ValorTotal = valorDocumento
-                                               };
-                await _context.SaldoMensalDB.AddAsync(saldoMensal);
+                throw new Exception("Saldo não encontrado para o usuário.");
+            }
+            saldo.ValorTotal = valorNovo;
+            _context.SaldoMensalDB.Update(saldo);
+        }
+    
+        public double AtualizarSaldo(double saldoAtual, SaldoDto saldoDto)
+        {
+            double novoSaldo = saldoAtual;
+
+            switch (saldoDto.TipoOperacao)
+            {
+                case TipoOperacao.Inserir:
+                    novoSaldo = saldoDto.TipoDocumento == TipoDocumento.Entrada
+                        ? saldoAtual + saldoDto.ValorDocumento
+                        : saldoAtual - saldoDto.ValorDocumento;
+                    break;
+
+                case TipoOperacao.Alterar:
+                    novoSaldo = saldoDto.TipoDocumento == TipoDocumento.Entrada
+                        ? saldoAtual - saldoDto.ValorDocumentoAntigo + saldoDto.ValorDocumento
+                        : saldoAtual + saldoDto.ValorDocumentoAntigo - saldoDto.ValorDocumento;
+                    break;
+
+                case TipoOperacao.Deletar:
+                    novoSaldo = saldoDto.TipoDocumento == TipoDocumento.Entrada
+                        ? saldoAtual - saldoDto.ValorDocumento
+                        : saldoAtual + saldoDto.ValorDocumento;
+                    break;
+            }
+
+            return novoSaldo;
+        }
+        public async Task<double> SaldoTotal()
+        {
+            var saldoTotal = await _context.SaldoMensalDB
+                .Where(s => s.UsuarioId == _usuarioService.GetUserId())
+                .SumAsync(s => s.ValorTotal);
+            return saldoTotal;
+        }
+
+        public async Task CriarOuAtualizarSaldoAsync(SaldoDto saldoDto)
+        {
+            var saldoExistente = await ObterSaldoPorUsuarioIdAsync(_usuarioService.GetUserId());
+
+            if (saldoExistente == null)
+            {                
+                Saldo novoSaldo = new Saldo
+                {                    
+                    UsuarioId = _usuarioService.GetUserId(),
+                    ValorTotal = AtualizarSaldo(0.0, saldoDto)
+                };
+
+                await CriarSaldoAsync(novoSaldo);
             }
             else
-            {
-                saldoMensal.ValorTotal += valorDocumento;
+            {               
+                saldoExistente.ValorTotal = AtualizarSaldo(saldoExistente.ValorTotal, saldoDto);
+
+                await AlterarSaldoAsync(saldoExistente.ValorTotal);
             }
         }
     }

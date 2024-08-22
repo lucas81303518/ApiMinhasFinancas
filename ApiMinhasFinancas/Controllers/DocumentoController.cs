@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using ApiMinhasFinancas.Services;
+using BibliotecaMinhasFinancas.Data.Dtos;
+using BibliotecaMinhasFinancas.Data.Dtos.Saldo;
 
 namespace ApiMinhasFinancas.Controllers
 {
@@ -20,12 +22,14 @@ namespace ApiMinhasFinancas.Controllers
         private readonly MinhasFinancasContext _context;
         private readonly IMapper _mapper;        
         private readonly SaldoMensalService _saldoMensalService;
-        public DocumentoController(MinhasFinancasContext context, IMapper mapper, UsuarioService usuarioService, SaldoMensalService saldoMensalService)
+        private readonly TipoContasService _tipoContasService;
+        public DocumentoController(MinhasFinancasContext context, IMapper mapper, UsuarioService usuarioService, SaldoMensalService saldoMensalService, TipoContasService tipoContasService)
         {
             _context = context;
             _mapper = mapper;
             _usuarioService = usuarioService;
             _saldoMensalService = saldoMensalService;
+            _tipoContasService = tipoContasService;
         }
 
         [HttpGet]
@@ -201,10 +205,13 @@ namespace ApiMinhasFinancas.Controllers
             updateDocumentosDto.UsuarioId = _usuarioService.GetUserId();
             var documento = _mapper.Map<Documentos>(updateDocumentosDto);
             _context.DocumentosDB.Add(documento);
-            await _saldoMensalService.AtualizarSaldoMensal
-                (updateDocumentosDto.DataDocumento.Month,
-                updateDocumentosDto.DataDocumento.Year,
-                updateDocumentosDto.Valor);
+            await _saldoMensalService.CriarOuAtualizarSaldoAsync
+                (new SaldoDto
+                {
+                    TipoOperacao   = TipoOperacao.Inserir,
+                    TipoDocumento  = await _tipoContasService.GetTipo(updateDocumentosDto.TipoContaId),
+                    ValorDocumento = updateDocumentosDto.Valor
+                });              
             await _context.SaveChangesAsync();
             return Ok();
         }
@@ -218,12 +225,18 @@ namespace ApiMinhasFinancas.Controllers
                 .SingleOrDefaultAsync(d => d.Id == id);
             if (documento == null)
                 return NotFound();
-            double valorAtualizado = updateDocumentosDto.Valor - documento.Valor;
+
+            await _saldoMensalService.CriarOuAtualizarSaldoAsync
+                (new SaldoDto
+                {
+                    TipoOperacao = TipoOperacao.Alterar,
+                    TipoDocumento = await _tipoContasService.GetTipo(updateDocumentosDto.TipoContaId),
+                    ValorDocumento = updateDocumentosDto.Valor,
+                    ValorDocumentoAntigo = documento.Valor
+                });
+
             _mapper.Map(updateDocumentosDto, documento);            
-            await _saldoMensalService.AtualizarSaldoMensal(
-                updateDocumentosDto.DataDocumento.Month,
-                updateDocumentosDto.DataDocumento.Year,
-                valorAtualizado);          
+            
             await _context.SaveChangesAsync();
             return NoContent();
         }
@@ -237,10 +250,13 @@ namespace ApiMinhasFinancas.Controllers
             if (documento == null)
                 return NotFound();
             _context.DocumentosDB.Remove(documento);
-            await _saldoMensalService.AtualizarSaldoMensal(
-                documento.DataDocumento.Month,
-                documento.DataDocumento.Year,
-                (documento.Valor * -1));
+            await _saldoMensalService.CriarOuAtualizarSaldoAsync
+                (new SaldoDto
+                {
+                    TipoOperacao = TipoOperacao.Deletar,
+                    TipoDocumento = await _tipoContasService.GetTipo(documento.TipoContaId),
+                    ValorDocumento = documento.Valor                   
+                });
             await _context.SaveChangesAsync();
             return NoContent();
         }
