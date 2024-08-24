@@ -3,6 +3,7 @@ using System;
 using ApiMinhasFinancas.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ApiMinhasFinancas.Migrations
 {
     [DbContext(typeof(MinhasFinancasContext))]
-    partial class MinhasFinancasContextModelSnapshot : ModelSnapshot
+    [Migration("20240823002524_Model Gastos incluido")]
+    partial class ModelGastosincluido
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -190,33 +192,6 @@ namespace ApiMinhasFinancas.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("MetasDB");
-                });
-
-            modelBuilder.Entity("BibliotecaMinhasFinancas.Models.Receitas", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Ano")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Mes")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("integer");
-
-                    b.Property<double>("ValorTotal")
-                        .HasColumnType("double precision");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.ToTable("ReceitasDB");
                 });
 
             modelBuilder.Entity("BibliotecaMinhasFinancas.Models.Saldo", b =>
@@ -578,17 +553,6 @@ namespace ApiMinhasFinancas.Migrations
                 });
 
             modelBuilder.Entity("BibliotecaMinhasFinancas.Models.Metas", b =>
-                {
-                    b.HasOne("BibliotecaMinhasFinancas.Models.Usuarios", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("BibliotecaMinhasFinancas.Models.Receitas", b =>
                 {
                     b.HasOne("BibliotecaMinhasFinancas.Models.Usuarios", "Usuario")
                         .WithMany()

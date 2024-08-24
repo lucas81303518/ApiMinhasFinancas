@@ -1,6 +1,6 @@
 using ApiMinhasFinancas.Data;
+using ApiMinhasFinancas.Factorys;
 using ApiMinhasFinancas.Services;
-using BibliotecaMinhasFinancas.Data.Dtos.Usuarios;
 using BibliotecaMinhasFinancas.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -38,11 +38,16 @@ builder.Services
     })
     .AddEntityFrameworkStores<MinhasFinancasContext>()
     .AddDefaultTokenProviders();
-
+// Factorys \\
+builder.Services.AddScoped<FinanceiroFactory>();
+// Services \\
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<SaldoMensalService>();
 builder.Services.AddScoped<TipoContasService>();
+builder.Services.AddScoped<FinanceiroService>(); 
+builder.Services.AddScoped<GastosService>();
+builder.Services.AddScoped<ReceitasService>();
 
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

@@ -19,8 +19,8 @@ namespace ApiMinhasFinancas.Services
 
         public async Task<Saldo> ObterSaldoPorUsuarioIdAsync(int usuarioId)
         {
-            return await _context.Set<Saldo>()
-                .FirstOrDefaultAsync(s => s.UsuarioId == usuarioId);
+            return await _context.SaldoMensalDB.
+                FirstOrDefaultAsync(s => s.UsuarioId == usuarioId);
         }
 
         public async Task CriarSaldoAsync(Saldo saldo)

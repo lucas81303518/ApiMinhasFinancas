@@ -10,6 +10,7 @@ using System.Globalization;
 using ApiMinhasFinancas.Services;
 using BibliotecaMinhasFinancas.Data.Dtos;
 using BibliotecaMinhasFinancas.Data.Dtos.Saldo;
+using BibliotecaMinhasFinancas.Data.Dtos.Gastos;
 
 namespace ApiMinhasFinancas.Controllers
 {
@@ -22,14 +23,21 @@ namespace ApiMinhasFinancas.Controllers
         private readonly MinhasFinancasContext _context;
         private readonly IMapper _mapper;        
         private readonly SaldoMensalService _saldoMensalService;
-        private readonly TipoContasService _tipoContasService;
-        public DocumentoController(MinhasFinancasContext context, IMapper mapper, UsuarioService usuarioService, SaldoMensalService saldoMensalService, TipoContasService tipoContasService)
+        private readonly TipoContasService _tipoContasService;        
+        private FinanceiroService _financeiroService;
+
+        public DocumentoController(MinhasFinancasContext context, 
+                                   IMapper mapper, UsuarioService usuarioService,
+                                   SaldoMensalService saldoMensalService, 
+                                   TipoContasService tipoContasService, 
+                                   FinanceiroService financeiroService)
         {
             _context = context;
             _mapper = mapper;
             _usuarioService = usuarioService;
             _saldoMensalService = saldoMensalService;
-            _tipoContasService = tipoContasService;
+            _tipoContasService = tipoContasService;        
+            _financeiroService = financeiroService;
         }
 
         [HttpGet]
@@ -205,15 +213,27 @@ namespace ApiMinhasFinancas.Controllers
             updateDocumentosDto.UsuarioId = _usuarioService.GetUserId();
             var documento = _mapper.Map<Documentos>(updateDocumentosDto);
             _context.DocumentosDB.Add(documento);
+
             await _saldoMensalService.CriarOuAtualizarSaldoAsync
                 (new SaldoDto
                 {
                     TipoOperacao   = TipoOperacao.Inserir,
                     TipoDocumento  = await _tipoContasService.GetTipo(updateDocumentosDto.TipoContaId),
                     ValorDocumento = updateDocumentosDto.Valor
-                });              
+                });
+            
+            await _financeiroService.AtualizarGastoAsync
+                (new UpdateFianceirosDto
+                {
+                    Ano = updateDocumentosDto.DataDocumento.Year,
+                    Mes = updateDocumentosDto.DataDocumento.Month,
+                    ValorDocumento = updateDocumentosDto.Valor,                   
+                    TipoOperacao = TipoOperacao.Inserir,                    
+                    tipoDocumento = await _tipoContasService.GetTipo(documento.TipoContaId)
+                });
+            
             await _context.SaveChangesAsync();
-            return Ok();
+            return Created(nameof(RetornaDocumentoPorId), new { id = documento.Id});            
         }
 
         [HttpPut("{id}")]
@@ -235,6 +255,19 @@ namespace ApiMinhasFinancas.Controllers
                     ValorDocumentoAntigo = documento.Valor
                 });
 
+            await _financeiroService.AtualizarGastoAsync
+                (new UpdateFianceirosDto
+                {
+                    Ano = updateDocumentosDto.DataDocumento.Year,
+                    Mes = updateDocumentosDto.DataDocumento.Month,
+                    ValorDocumento = updateDocumentosDto.Valor,
+                    AnoAntigo = documento.DataDocumento.Year,
+                    MesAntigo = documento.DataDocumento.Month,
+                    ValorDocumentoAntigo = documento.Valor,
+                    TipoOperacao = TipoOperacao.Alterar,                    
+                    tipoDocumento = await _tipoContasService.GetTipo(documento.TipoContaId)
+                });
+
             _mapper.Map(updateDocumentosDto, documento);            
             
             await _context.SaveChangesAsync();
@@ -250,6 +283,7 @@ namespace ApiMinhasFinancas.Controllers
             if (documento == null)
                 return NotFound();
             _context.DocumentosDB.Remove(documento);
+
             await _saldoMensalService.CriarOuAtualizarSaldoAsync
                 (new SaldoDto
                 {
@@ -257,6 +291,17 @@ namespace ApiMinhasFinancas.Controllers
                     TipoDocumento = await _tipoContasService.GetTipo(documento.TipoContaId),
                     ValorDocumento = documento.Valor                   
                 });
+
+            await _financeiroService.AtualizarGastoAsync
+                (new UpdateFianceirosDto
+                {                   
+                    Ano = documento.DataDocumento.Year,
+                    Mes = documento.DataDocumento.Month,
+                    ValorDocumento = documento.Valor,
+                    TipoOperacao = TipoOperacao.Deletar,
+                    tipoDocumento = await _tipoContasService.GetTipo(documento.TipoContaId)
+                });
+
             await _context.SaveChangesAsync();
             return NoContent();
         }

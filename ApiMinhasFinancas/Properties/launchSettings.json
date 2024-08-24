@@ -1,4 +1,23 @@
-﻿{
+{
+  "profiles": {
+    "ApiMinhasFinancas": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:5000;http://0.0.0.0:5000"
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "launchUrl": "http://localhost:5000",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:5000;http://0.0.0.0:5000"
+      },
+      "distributionName": ""
+    }
+  },
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": false,
@@ -7,15 +26,5 @@
       "applicationUrl": "http://localhost:26660",
       "sslPort": 44339
     }
-  },
-  "profiles": {    
-      "ApiMinhasFinancas": {
-        "commandName": "Project",
-        "dotnetRunMessages": true,
-        "applicationUrl": "http://localhost:5000;http://0.0.0.0:5000",
-        "environmentVariables": {
-          "ASPNETCORE_ENVIRONMENT": "Development"
-        }
-      }
-    }
   }
+}

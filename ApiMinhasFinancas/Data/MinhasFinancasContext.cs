@@ -28,6 +28,7 @@ namespace ApiMinhasFinancas.Data
         public DbSet<Metas> MetasDB { get; set; }
         public DbSet<Transferencias> TransferenciasDB { get; set; }
         public DbSet<Saldo> SaldoMensalDB { get; set; }
-
+        public DbSet<Gastos> GastosDB { get; set; }
+        public DbSet<Receitas> ReceitasDB { get; set; }       
     }
 }
