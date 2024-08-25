@@ -5,6 +5,7 @@ using BibliotecaMinhasFinancas.Models;
 using BibliotecaMinhasFinancas.Utils;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApiMinhasFinancas.Services
 {
@@ -50,7 +51,13 @@ namespace ApiMinhasFinancas.Services
             var usuarioDto = _mapper.Map<ReadUsuariosDto>(usuario);
 
             return usuarioDto;
-        }        
+        }   
+        
+        public async Task<bool> EmailJaExiste(string email)
+        {
+            var usuario = await _userManager.FindByEmailAsync(email);
+            return usuario != null;
+        }
 
         public async Task<string> AtualizarFoto(UpdateFoto fotoBase64)
         {
@@ -74,16 +81,29 @@ namespace ApiMinhasFinancas.Services
         public async Task<string> CadastrarUsuario(CreateUsuarioDto dto)
         {
             Usuarios usuario = _mapper.Map<Usuarios>(dto);
-            IdentityResult resultado = await _userManager.CreateAsync(usuario, dto.Password);
-
-            if (resultado.Succeeded)
+            try
             {
-                return "OK";
+                IdentityResult resultado = await _userManager.CreateAsync(usuario, dto.Password);
+                if (resultado.Succeeded)
+                {
+                    return "OK";
+                }
+              
+                if (resultado.Errors.ToArray()[0].Code.Contains("DuplicateUserName"))
+                {
+                    return "Usuário informado já está sendo utilizado!";
+                }
+                return "Erro ao inserir usuário";                
             }
-            else
+            catch (DbUpdateException ex) 
             {
-                return "Erro ao inserir usuário";
-            }
+                if (ex.InnerException.Message.Contains("duplicar valor da chave viola a restrição de unicidade \"IX_AspNetUsers_Email"))
+                {
+                    return "E-mail inserido já está sendo utilizado!";
+                }          
+                
+                return "Erro ao inserir usuário " + ex.Message;
+            }                       
         }
 
         public async Task<string> AlterarUsuario(UpdateUsuarioDto updateUsuarioDto)

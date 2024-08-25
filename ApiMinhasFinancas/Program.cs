@@ -35,6 +35,7 @@ builder.Services
     {
         options.Password.RequireUppercase = false;
         options.Password.RequireNonAlphanumeric = false;
+        //options.SignIn.RequireConfirmedAccount = true;
     })
     .AddEntityFrameworkStores<MinhasFinancasContext>()
     .AddDefaultTokenProviders();

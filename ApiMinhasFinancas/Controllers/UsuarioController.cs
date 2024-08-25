@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using ApiMinhasFinancas.Services;
 using BibliotecaMinhasFinancas.Data.Dtos.Usuarios;
+using System.ComponentModel.DataAnnotations;
 
 namespace BibliotecaMinhasFinancas.Controllers
 {
@@ -30,6 +31,16 @@ namespace BibliotecaMinhasFinancas.Controllers
                 return Ok();
             }
             return BadRequest(resultado);
+        }
+
+        [HttpGet("EmailJaExiste")]
+        public async Task<bool> EmailJaExiste
+            ([FromQuery]
+            [Required]
+            string email)
+        {
+            var retorno = await _userService.EmailJaExiste(email);
+            return retorno;
         }
 
         [HttpPost("login")]
