@@ -2,6 +2,7 @@
 using BibliotecaMinhasFinancas.Models;
 using AutoMapper;
 using BibliotecaMinhasFinancas.Dtos.Metas;
+using BibliotecaMinhasFinancas.Data.Dtos.MovimentacaoMetas;
 
 namespace ApiMinhasFinancas.Profiles
 {
@@ -11,6 +12,7 @@ namespace ApiMinhasFinancas.Profiles
         {
             CreateMap<UpdateMetasDto, Metas>();
             CreateMap<Metas, ReadMetasDto>();
+            CreateMap<UpdateMovimentacaoMetas, MovimentacaoMetas>();                       
         }
     }
 }

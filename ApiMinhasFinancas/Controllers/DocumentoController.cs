@@ -159,6 +159,7 @@ namespace ApiMinhasFinancas.Controllers
 
             return Ok(saldos);
         }
+
         [HttpGet("SaldoFormasPagamento/{id}")]
         public async Task<ActionResult<IEnumerable<ReadSaldoFormasPagamentoDto>>> ObterSaldoFormaPagamentoPorId(int id)
         {

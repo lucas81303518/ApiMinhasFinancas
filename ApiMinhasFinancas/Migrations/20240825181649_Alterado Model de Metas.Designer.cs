@@ -3,6 +3,7 @@ using System;
 using ApiMinhasFinancas.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ApiMinhasFinancas.Migrations
 {
     [DbContext(typeof(MinhasFinancasContext))]
-    partial class MinhasFinancasContextModelSnapshot : ModelSnapshot
+    [Migration("20240825181649_Alterado Model de Metas")]
+    partial class AlteradoModeldeMetas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -169,14 +171,11 @@ namespace ApiMinhasFinancas.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<long>("Cor")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime>("DataInsercao")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("DataPrevisao")
-                        .HasColumnType("date");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Descricao")
                         .IsRequired()
@@ -185,7 +184,7 @@ namespace ApiMinhasFinancas.Migrations
                     b.Property<int>("UsuarioId")
                         .HasColumnType("integer");
 
-                    b.Property<double>("ValorObjetivo")
+                    b.Property<double>("ValorObjectivo")
                         .HasColumnType("double precision");
 
                     b.Property<double>("ValorResultado")
@@ -196,42 +195,6 @@ namespace ApiMinhasFinancas.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("MetasDB");
-                });
-
-            modelBuilder.Entity("BibliotecaMinhasFinancas.Models.MovimentacaoMetas", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("DataHora")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Descricao")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("MetaId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TipoOperacao")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("integer");
-
-                    b.Property<double>("Valor")
-                        .HasColumnType("double precision");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MetaId");
-
-                    b.HasIndex("UsuarioId");
-
-                    b.ToTable("MovimentacaoMetasDB");
                 });
 
             modelBuilder.Entity("BibliotecaMinhasFinancas.Models.Receitas", b =>
@@ -626,25 +589,6 @@ namespace ApiMinhasFinancas.Migrations
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("BibliotecaMinhasFinancas.Models.MovimentacaoMetas", b =>
-                {
-                    b.HasOne("BibliotecaMinhasFinancas.Models.Metas", "Meta")
-                        .WithMany()
-                        .HasForeignKey("MetaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BibliotecaMinhasFinancas.Models.Usuarios", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Meta");
 
                     b.Navigation("Usuario");
                 });

@@ -34,8 +34,7 @@ builder.Services
     .AddIdentity<Usuarios, IdentityRole<int>>(options =>
     {
         options.Password.RequireUppercase = false;
-        options.Password.RequireNonAlphanumeric = false;
-        //options.SignIn.RequireConfirmedAccount = true;
+        options.Password.RequireNonAlphanumeric = false;     
     })
     .AddEntityFrameworkStores<MinhasFinancasContext>()
     .AddDefaultTokenProviders();
@@ -49,6 +48,7 @@ builder.Services.AddScoped<TipoContasService>();
 builder.Services.AddScoped<FinanceiroService>(); 
 builder.Services.AddScoped<GastosService>();
 builder.Services.AddScoped<ReceitasService>();
+builder.Services.AddScoped<MovimentacaoMetasService>(); 
 
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

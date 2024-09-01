@@ -54,7 +54,7 @@ namespace ApiMinhasFinancas.Services
         }   
         
         public async Task<bool> EmailJaExiste(string email)
-        {
+        {            
             var usuario = await _userManager.FindByEmailAsync(email);
             return usuario != null;
         }
