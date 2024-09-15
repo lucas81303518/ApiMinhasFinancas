@@ -63,6 +63,53 @@ namespace ApiMinhasFinancas.Controllers
             return NotFound();
         }
 
+        [HttpGet("ValoresPorPeriodo")]
+        public async Task<ActionResult<IEnumerable<ReadTipoContaTotalDocs>>> ObterValoresPorPeriodo(
+            [FromQuery(Name = "tipo")]
+            [Required] int tipo,
+            [FromQuery(Name = "status")]
+            [Required] char status,
+            [FromQuery(Name = "dataIni")]
+            [Required] DateTime dataIni,
+            [FromQuery(Name = "dataFim")]
+            [Required] DateTime dataFim)
+        {
+            var totalValores = await _context.DocumentosDB
+                              .Where(d => d.UsuarioId == _usuarioService.GetUserId())
+                              .Where(d => d.DataDocumento >= dataIni.Date)
+                              .Where(d => d.DataDocumento <= dataFim.Date)
+                              .Where(d => d.TipoConta.Tipo == tipo)
+                              .Where(d => d.Status == status.ToString())
+                              .Where(d => d.Valor > 0)
+                              .GroupBy(d => new { d.TipoConta.Id, d.TipoConta.NomeConta, d.TipoConta.Tipo })
+                              .Select(Valores => new ReadTipoContaTotalDocs
+                              {
+                                  Id = Valores.Key.Id,
+                                  NomeConta = Valores.Key.NomeConta,
+                                  Tipo = Valores.Key.Tipo,
+                                  ValorTotal = Valores.Sum(d => d.Valor)
+                              }).OrderBy(d => d.ValorTotal)
+                                .ToListAsync();
+            return Ok(totalValores);
+        }
+
+        [HttpGet("Extrato")]
+        public async Task<IEnumerable<ReadDocumentosDto>> ObterDocumentosPorPeriodo(                 
+            [FromQuery(Name = "dataIni")]
+            [Required] DateTime dataIni,
+            [FromQuery(Name = "dataFim")]
+            [Required] DateTime dataFim)
+        {
+            var documentos = await _context.DocumentosDB
+                                     .Where(d => d.UsuarioId == _usuarioService.GetUserId())
+                                     .Where(d => d.DataDocumento >= dataIni.Date &&
+                                            d.DataDocumento <= dataFim.Date)
+                                     .OrderBy(d => d.DataDocumento)
+                                     .ToListAsync();
+            return _mapper.Map<List<ReadDocumentosDto>>(documentos);
+        }
+
+
         [HttpGet("PorPeriodo")]
         public async Task<IEnumerable<ReadDocumentosDto>> ObterDocumentosPorPeriodo(   
             [FromQuery(Name = "tipo")]
@@ -76,40 +123,13 @@ namespace ApiMinhasFinancas.Controllers
         {
             var documentos =  await _context.DocumentosDB
                                      .Where(d => d.UsuarioId == _usuarioService.GetUserId())
-                                     .Where(d => d.DataDocumento >= dataIni.Date && d.DataDocumento <= dataFim.Date && d.TipoConta.Tipo == tipo && d.Status == status.ToString())
+                                     .Where(d => d.DataDocumento >= dataIni.Date &&
+                                            d.DataDocumento <= dataFim.Date && 
+                                            d.TipoConta.Tipo == tipo && d.Status == status.ToString())
+                                     .OrderBy(d => d.DataDocumento)
                                      .ToListAsync();
             return _mapper.Map<List<ReadDocumentosDto>>(documentos);            
-        }                            
-
-        [HttpGet("ValoresPorPeriodo")]
-        public async Task<ActionResult<IEnumerable<ReadTipoContaTotalDocs>>> ObterValoresPorPeriodo(
-            [FromQuery(Name = "tipo")]   
-            [Required] int tipo,
-            [FromQuery(Name = "status")] 
-            [Required] char status,
-            [FromQuery(Name = "dataIni")]
-            [Required] DateTime dataIni,
-            [FromQuery(Name = "dataFim")]
-            [Required] DateTime dataFim)
-        {
-            var totalValores = await _context.DocumentosDB
-                              .Where(d => d.UsuarioId == _usuarioService.GetUserId())
-                              .Where(d => d.DataDocumento >= dataIni.Date)
-                              .Where(d => d.DataDocumento <= dataFim.Date)
-                              .Where(d => d.TipoConta.Tipo == tipo)
-                              .Where(d => d.Status == status.ToString())
-                              .Where(d => d.Valor > 0)                              
-                              .GroupBy(d => new { d.TipoConta.Id, d.TipoConta.NomeConta, d.TipoConta.Tipo })
-                              .Select(Valores => new ReadTipoContaTotalDocs
-                              {
-                                  Id = Valores.Key.Id,
-                                  NomeConta = Valores.Key.NomeConta,
-                                  Tipo = Valores.Key.Tipo,
-                                  ValorTotal = Valores.Sum(d => d.Valor)
-                              }).OrderBy(d => d.ValorTotal)
-                                .ToListAsync();                             
-            return Ok(totalValores);
-        }
+        }                                    
 
         [HttpGet("RelatorioDetalhadoTipoContas")]
         public async Task<ActionResult<IEnumerable<ReadTipoContaTotalDocs>>> RelatorioDetalhadoTipoContas(
@@ -141,72 +161,7 @@ namespace ApiMinhasFinancas.Controllers
                               .OrderBy(d => d.DataDocumento)
                               .ToListAsync();
             return Ok(documentosPorTipoConta);
-        }
-
-        [HttpGet("SaldoFormasPagamento")]
-        public async Task<ActionResult<IEnumerable<ReadSaldoFormasPagamentoDto>>> ObterSaldoFormasPagamento()
-        {
-            var saldos = await _context.DocumentosDB
-                .Where(d => d.UsuarioId == _usuarioService.GetUserId())
-                .Where(d => d.DataDocumento <= DateTime.UtcNow)
-                .GroupBy(d => new { d.FormaPagamento.Id, d.FormaPagamento.Nome })                
-                .Select(SaldoFormaPagamento => new ReadSaldoFormasPagamentoDto
-                 {
-                     Id = SaldoFormaPagamento.Key.Id,
-                     Nome = SaldoFormaPagamento.Key.Nome,
-                     Valor = SaldoFormaPagamento.Sum(d => d.TipoConta.Tipo == 1 && d.Status == "E" ? d.Valor : (d.TipoConta.Tipo == 2 && d.Status == "P" ? -d.Valor : 0))
-                 }).ToListAsync();
-
-            return Ok(saldos);
-        }
-
-        [HttpGet("SaldoFormasPagamento/{id}")]
-        public async Task<ActionResult<IEnumerable<ReadSaldoFormasPagamentoDto>>> ObterSaldoFormaPagamentoPorId(int id)
-        {
-            var saldos = await _context.DocumentosDB
-                .Where(d => d.UsuarioId == _usuarioService.GetUserId())
-                .Where(d => d.DataDocumento <= DateTime.UtcNow)
-                .Where(d => d.FormaPagamentoId == id)
-                .SumAsync(d => d.TipoConta.Tipo == 1 && d.Status == "E" ? d.Valor : (d.TipoConta.Tipo == 2 && d.Status == "P" ? -d.Valor : 0));
-            return Ok(saldos);
-        }
-
-        [HttpGet("SaldoGeral")]
-        public async Task<ActionResult<double>> ObterSaldoGeral()
-        {            
-            var saldoEntrada = await _context.DocumentosDB
-                .Where(d => d.UsuarioId == _usuarioService.GetUserId())
-                .Where(d => d.DataDocumento <= DateTime.UtcNow && d.TipoConta.Tipo == 1)
-                .SumAsync(d => d.Valor);
-
-            var saldoSaida = await _context.DocumentosDB
-                .Where(d => d.UsuarioId == _usuarioService.GetUserId())
-                .Where(d => d.DataDocumento <= DateTime.UtcNow && d.TipoConta.Tipo == 2 && d.Status == "P")
-                .SumAsync(d => d.Valor);                     
-            return Ok(saldoEntrada - saldoSaida);            
-        }
-
-        [HttpGet("SaldoUltimosMeses/tipo={tipo}&qtdUltimosMeses={qtdUltimosMeses}")]
-        public async Task<ActionResult<IEnumerable<ReadMesTotalDto>>> GetSaldoUltimosMeses(int tipo, int qtdUltimosMeses)
-        {           
-            var dataInicial = DateTime.UtcNow.AddMonths(-qtdUltimosMeses);
-          
-            var dataAtual = DateTime.UtcNow;
-          
-            var saldosPorMes = await _context.DocumentosDB
-                .Where(d => d.UsuarioId == _usuarioService.GetUserId())
-                .Where(d => d.DataDocumento >= dataInicial && d.DataDocumento <= dataAtual && d.TipoConta.Tipo == tipo)
-                .GroupBy(d => new { d.DataDocumento.Year, d.DataDocumento.Month })
-                .Select(g => new ReadMesTotalDto
-                {
-                    NumeroMes = g.Key.Month,
-                    Mes = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(g.Key.Month),
-                    Total = g.Sum(d => d.Valor)
-                })
-                .ToListAsync();
-
-            return Ok(saldosPorMes);
-        }
+        }               
 
         [HttpPost]
         public async Task<IActionResult> AdicionaDocumento([FromBody] UpdateDocumentosDto updateDocumentosDto)
