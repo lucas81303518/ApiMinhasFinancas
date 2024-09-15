@@ -104,7 +104,7 @@ namespace ApiMinhasFinancas.Controllers
                                      .Where(d => d.UsuarioId == _usuarioService.GetUserId())
                                      .Where(d => d.DataDocumento >= dataIni.Date &&
                                             d.DataDocumento <= dataFim.Date)
-                                     .OrderBy(d => d.DataDocumento)
+                                     .OrderByDescending(d => d.DataDocumento)
                                      .ToListAsync();
             return _mapper.Map<List<ReadDocumentosDto>>(documentos);
         }
