@@ -27,13 +27,8 @@ jobs:
           key: ${{ secrets.WINDOWS_SERVER_SSH_KEY }}
           port: 22
           script: |
-            cd "C:\Users\Administrator\Desktop\Api Minhas Financas"
-            # Caso deseje atualizar o código no servidor
+            cd C:\Users\Administrator\Desktop\Api Minhas Financas
             git pull origin main
-            
-            # Restaurar, compilar e iniciar a aplicação
-            dotnet restore
-            dotnet build --configuration Release
-            
-            # Se você realmente precisa rodar a aplicação diretamente
-            start dotnet run --no-build
+            dotnet restore ApiMinhasFinancas.sln
+            dotnet build ApiMinhasFinancas.sln --configuration Release
+            dotnet run --no-build
