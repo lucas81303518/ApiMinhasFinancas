@@ -3,7 +3,7 @@ name: CI/CD Deploy to Windows Server
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
@@ -16,7 +16,9 @@ jobs:
 
       # Publicar a API
       - name: Publish .NET API
-        run: dotnet publish -c Release -o ./output
+        run: |
+          cd ApiMinhasFinancas # ou o caminho correto se estiver em uma pasta diferente
+          dotnet publish ApiMinhasFinancas.sln -c Release -o ./output
 
       # Fazer deploy no servidor Windows via SSH
       - name: Deploy to Windows Server
