@@ -26,7 +26,6 @@
   </ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Biblioteca de Classes\BibliotecaMinhasFinancas\BibliotecaMinhasFinancas.csproj" />
+	  <ProjectReference Include="..\BibliotecaMinhasFinancas\BibliotecaMinhasFinancas.csproj" />
 	</ItemGroup>
-
 </Project>
