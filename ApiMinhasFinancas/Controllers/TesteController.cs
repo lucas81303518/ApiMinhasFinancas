@@ -4,8 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ApiMinhasFinancas.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    //[Authorize]
+    [Route("[controller]")]    
     public class TesteController: ControllerBase
     {
         [HttpGet]

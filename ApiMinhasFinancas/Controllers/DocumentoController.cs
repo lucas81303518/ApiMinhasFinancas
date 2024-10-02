@@ -6,9 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using System.Globalization;
 using ApiMinhasFinancas.Services;
-using BibliotecaMinhasFinancas.Data.Dtos;
 using BibliotecaMinhasFinancas.Data.Dtos.Saldo;
 using BibliotecaMinhasFinancas.Data.Dtos.Gastos;
 
@@ -16,7 +14,7 @@ namespace ApiMinhasFinancas.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    [Authorize(Policy = "UsuarioAtivo")]
     public class DocumentoController: ControllerBase
     {
         private readonly UsuarioService _usuarioService;

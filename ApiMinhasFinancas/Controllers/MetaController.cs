@@ -16,7 +16,7 @@ namespace BibliotecaMinhasFinancas.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    [Authorize(Policy = "UsuarioAtivo")]
     public class MetaController: ControllerBase
     {
         private readonly MinhasFinancasContext _context;

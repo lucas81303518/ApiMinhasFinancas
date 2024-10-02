@@ -140,7 +140,7 @@ namespace ApiMinhasFinancas.Services
                 return "Usuário não encontrado!";               
             }
 
-            var token = _tokenService.GenerateToken(usuario);
+            var token = await _tokenService.GenerateToken(usuario);
 
             return token;
         }

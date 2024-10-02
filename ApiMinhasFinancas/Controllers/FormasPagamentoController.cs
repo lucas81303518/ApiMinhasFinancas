@@ -11,7 +11,7 @@ namespace BibliotecaMinhasFinancas.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    [Authorize(Policy = "UsuarioAtivo")]
     public class FormasPagamentoController: ControllerBase
     {
         private readonly MinhasFinancasContext _context;

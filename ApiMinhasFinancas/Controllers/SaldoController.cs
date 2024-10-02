@@ -10,7 +10,7 @@ namespace ApiMinhasFinancas.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    [Authorize(Policy = "UsuarioAtivo")]
     public class SaldoController: ControllerBase
     {        
         private readonly SaldoMensalService _saldoMensalService;

@@ -7,7 +7,7 @@ namespace ApiMinhasFinancas.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    [Authorize(Policy = "UsuarioAtivo")]
 
     public class MovimentacaoMetasController: ControllerBase
     {

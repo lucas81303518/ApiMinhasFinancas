@@ -11,7 +11,7 @@ namespace ApiMinhasFinancas.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    [Authorize(Policy = "UsuarioAtivo")]
     public class ComprovanteController: ControllerBase
     {
         private readonly MinhasFinancasContext _context;

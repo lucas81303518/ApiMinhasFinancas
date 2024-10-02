@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 namespace ApiMinhasFinancas.Controllers
 {
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "UsuarioAtivo")]
     [Route("[controller]")]
     public class ReceitasMensalController: ControllerBase
     {

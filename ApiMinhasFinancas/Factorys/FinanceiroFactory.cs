@@ -17,7 +17,7 @@ namespace ApiMinhasFinancas.Factorys
         {
             return tipoDocumento switch
             {
-                TipoDocumento.Saida => _serviceProvider.GetRequiredService<GastosService>(),
+                TipoDocumento.Saida   => _serviceProvider.GetRequiredService<GastosService>(),
                 TipoDocumento.Entrada => _serviceProvider.GetRequiredService<ReceitasService>(),
                 _ => throw new ArgumentException("Invalid type", nameof(tipoDocumento))
             };

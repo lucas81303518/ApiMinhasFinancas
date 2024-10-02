@@ -11,7 +11,7 @@ using BibliotecaMinhasFinancas.Data.Dtos.Usuarios;
 using System.ComponentModel.DataAnnotations;
 
 namespace BibliotecaMinhasFinancas.Controllers
-{
+{   
     [ApiController]
     [Route("[controller]")]
     public class UsuarioController: ControllerBase
@@ -56,7 +56,7 @@ namespace BibliotecaMinhasFinancas.Controllers
             return BadRequest(resultado);
         }
 
-        [Authorize]
+        [Authorize(Policy = "UsuarioAtivo")]
         [HttpGet]
         public async Task<IActionResult> RecuperarUsuario()
         {
