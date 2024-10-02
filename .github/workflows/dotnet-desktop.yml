@@ -12,13 +12,7 @@ jobs:
     steps:
       # Fazer checkout do código do repositório
       - name: Checkout code
-        uses: actions/checkout@v2
-
-      # Publicar a API
-      - name: Publish .NET API
-        run: |
-          cd ApiMinhasFinancas # ou o caminho correto se estiver em uma pasta diferente
-          dotnet publish ApiMinhasFinancas.sln -c Release -o ./output
+        uses: actions/checkout@v2      
 
       # Fazer deploy no servidor Windows via SSH
       - name: Deploy to Windows Server
