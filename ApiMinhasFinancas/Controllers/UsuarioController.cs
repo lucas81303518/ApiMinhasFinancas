@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using ApiMinhasFinancas.Services;
 using BibliotecaMinhasFinancas.Data.Dtos.Usuarios;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace BibliotecaMinhasFinancas.Controllers
 {   
@@ -53,7 +54,8 @@ namespace BibliotecaMinhasFinancas.Controllers
             {
                 return Ok(new { Token = resultado });
             }
-            return BadRequest(resultado);
+            
+            return Forbid(JwtBearerDefaults.AuthenticationScheme);
         }
 
         [Authorize(Policy = "UsuarioAtivo")]
@@ -63,7 +65,7 @@ namespace BibliotecaMinhasFinancas.Controllers
             return Ok(await _userService.RecuperarUsuario());
         }
 
-        [Authorize]
+        [Authorize(Policy = "UsuarioAtivo")]
         [HttpPut("AlterarUsuario")]
         public async Task<IActionResult> AlterarUsuario(UpdateUsuarioDto updateUsuarioDto)
         {
@@ -73,7 +75,7 @@ namespace BibliotecaMinhasFinancas.Controllers
             return BadRequest(retorno);
         }
 
-        [Authorize]
+        [Authorize(Policy = "UsuarioAtivo")]
         [HttpPut("AtualizarFoto")]
         public async Task<IActionResult> AtualizarFoto([FromBody] UpdateFoto fotoBase64)
         {
